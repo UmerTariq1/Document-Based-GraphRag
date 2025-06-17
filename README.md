@@ -113,38 +113,12 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
    - Default credentials: `neo4j/password`
    - Ensure it's running on `bolt://localhost:7687`
 
-### Usage Workflow
-
-#### Step 1: Launch the Web Interface
+4. **Launch the Web Interface**:
 ```bash
 streamlit run ui/visualize.py
 ```
 - **Access**: Open `http://localhost:8501` in your browser
 - **Features**: Two main tabs - Ingestion and Query
-
-#### Step 2: Document Ingestion
-1. Navigate to the **📁 Ingestion** tab
-2. Upload your PDF document using the file uploader
-3. Click "🚀 Start Ingestion" to process the document
-4. The system will:
-   - Extract document structure
-   - Create knowledge graph in Neo4j
-   - Generate semantic relationships
-   - Show progress in real-time
-
-#### Step 3: Query Your Documents
-1. Switch to the **🔍 Query** tab
-2. Enter your question in natural language
-3. Use the sidebar to configure:
-   - Similarity thresholds
-   - Keyword matching requirements
-   - AI response settings
-   - Result filtering options
-4. Click "🔍 Search" to get:
-   - AI-generated response
-   - Source content with relationships
-   - Connected sections
-   - Graph visualization query which you can enter in the neo4j application to visualize the graph
 
 
 
