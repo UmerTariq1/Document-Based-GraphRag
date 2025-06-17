@@ -1,10 +1,30 @@
 # streamlit run ui/visualize.py
- 
-import streamlit as st
+
+
+import logging
+logging.getLogger("streamlit").setLevel(logging.ERROR)
+
+
 import sys
+import types
+
+# Patch torch.classes to prevent Streamlit from introspecting its __path__
+try:
+    import torch
+
+    class DummyPath:
+        # Fake path object to avoid __path__._path lookup
+        def __getattr__(self, name):
+            return []
+
+    if isinstance(torch.classes, types.ModuleType):
+        torch.classes.__path__ = DummyPath()
+except Exception:
+    pass  # Safe fallback if torch is not installed
+
+import streamlit as st
 from pathlib import Path
 import tempfile
-import json
 from typing import List, Dict
 
 # Add parent directory to path to import query.py
@@ -62,6 +82,32 @@ def convert_document_to_dict_list(document) -> List[Dict]:
         }
         sections_data.append(section_dict)
     return sections_data
+
+# --------------------------------------------------
+# Utility: Fetch simple graph statistics (node & relationship counts)
+# --------------------------------------------------
+
+def get_graph_stats(driver):
+    """Return total counts of nodes and relationships from Neo4j.
+
+    Parameters
+    ----------
+    driver : neo4j.Driver
+        Active Neo4j driver instance.
+
+    Returns
+    -------
+    tuple[int, int]
+        (node_count, relationship_count). Returns (0, 0) on error.
+    """
+    try:
+        with driver.session() as session:
+            node_count = session.run("MATCH (n) RETURN count(n) AS count").single()["count"]
+            rel_count = session.run("MATCH ()-[r]->() RETURN count(r) AS count").single()["count"]
+        return node_count, rel_count
+    except Exception:
+        # Return zeros if Neo4j not reachable or query fails
+        return 0, 0
 
 def process_pdf_and_ingest(uploaded_file):
     """Process uploaded PDF and ingest into Neo4j in one seamless flow."""
@@ -187,6 +233,26 @@ def show_ingestion_tab():
         The system will automatically identify sections, extract relationships, and prepare your document for intelligent querying.</p>
         </div>
         """, unsafe_allow_html=True)
+    
+    # --------------------------------------------------
+    # Graph status card - show existing data counts
+    # --------------------------------------------------
+    status_container = st.container()
+    with status_container:
+        st.markdown('<div class="glass-container slide-in">', unsafe_allow_html=True)
+        # Attempt to get counts if query engine is available
+        node_count, rel_count = 0, 0
+        try:
+            if 'query_engine' in st.session_state and st.session_state.query_engine:
+                node_count, rel_count = get_graph_stats(st.session_state.query_engine.driver)
+        except Exception as neo_err:
+            # Silently ignore; counts remain zero
+            print(f"Neo4j stats error: {neo_err}")
+        if node_count > 0:
+            st.markdown(f"✅ **Data already ingested.** \n\n📦 **{node_count} nodes** and 🔗 **{rel_count} relationships** currently in the graph.")
+        else:
+            st.markdown("⚠️ **No data found in the database. Please upload a PDF to begin ingestion.**")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # File upload section
     upload_container = st.container()
@@ -597,6 +663,30 @@ def show_query_tab():
         </div>
         """, unsafe_allow_html=True)
     
+    # --------------------------------------------------
+    # Data availability check – prevent queries when graph is empty
+    # --------------------------------------------------
+    # We do this check once the header is rendered but before showing the
+    # rest of the query UI.  If no nodes are present, we notify the user
+    # and exit the function early.
+
+    node_count_q, _ = 0, 0
+    try:
+        if 'query_engine' in st.session_state and st.session_state.query_engine:
+            node_count_q, _ = get_graph_stats(st.session_state.query_engine.driver)
+    except Exception as neo_err:
+        # Log silently; treat as no data to avoid further errors
+        print(f"Neo4j stats error (query tab): {neo_err}")
+
+    if node_count_q == 0:
+        no_data_container = st.container()
+        with no_data_container:
+            st.markdown('<div class="glass-container slide-in">', unsafe_allow_html=True)
+            st.markdown("⚠️ **No data found in the graph.**\n\nPlease switch to the **Ingestion** tab and upload a document before querying.")
+            st.markdown('</div>', unsafe_allow_html=True)
+        # Early return prevents the rest of the query UI (inputs, etc.) from rendering
+        return
+    
     # Initialize sample query in session state if not exists
     if 'selected_sample_query' not in st.session_state:
         st.session_state.selected_sample_query = ""
@@ -652,7 +742,7 @@ def show_query_tab():
     # Search button
     if st.button("🔍 Search", type="primary"):
         if query:
-            with st.spinner("Searching and generating AI response..."):
+            with st.spinner("Searching and generating AI response... (if AI response parameter on the sidebar is enabled, it might take a while)"):
                 try:
                     # Temporarily modify the query engine for this search if LLM is disabled
                     if not enable_llm:
