@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from pathlib import Path
 
+# Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 class GraphRAGQuery:
     def __init__(self, uri: str = "bolt://localhost:7687", username: str = "neo4j", password: str = "password"):
         """Initialize Neo4j connection and OpenAI client."""
@@ -222,8 +225,7 @@ class GraphRAGQuery:
                 relationship_info += ")"
             
             formatted_node = f"""
-            **Section {i}: {node.get('title', 'N/A')}** {relationship_info}
-            - **Section ID:** {node.get('id', 'N/A')}
+            **Section ID {node.get('id', 'N/A')} : {node.get('title', 'N/A')}** {relationship_info}
             - **Page:** {node.get('page_number', 'N/A')}
             - **Level:** {node.get('level', 'N/A')}
             - **Content:** {node.get('text', 'No content available')}
@@ -290,10 +292,10 @@ class GraphRAGQuery:
         
         # Extract keywords from query only
         query_keywords = set(kw.lower() for kw in self.extract_keywords(query))
-        print("query_keywords : " , query_keywords)
+        # print("query_keywords : " , query_keywords)
         # Get main node keywords from semantic search results
         main_node_keywords = main_node.get('keywords', [])
-        print("main_node_keywords : " , main_node_keywords)
+        # print("main_node_keywords : " , main_node_keywords)
         
         # Calculate matching keywords
         matching_keywords, keyword_count = self._calculate_keyword_matches(
@@ -301,8 +303,8 @@ class GraphRAGQuery:
             list(query_keywords),  # Convert set to list for consistency
             excluded_keywords
         )
-        print("matching_keywords : " , matching_keywords)
-        print("keyword_count : " , keyword_count)
+        # print("matching_keywords : " , matching_keywords)
+        # print("keyword_count : " , keyword_count)
         main_node['matching_keywords'] = matching_keywords
         main_node['keyword_match_count'] = keyword_count
         
@@ -325,6 +327,7 @@ class GraphRAGQuery:
                 seen_ids.add(item['id'])
                 categorized_context['parent'].append(item)
         
+        # print("parent_content : " , parent_content)
         # 2. Get subsection content (apply thresholds)
         subsection_content = self.get_related_content(main_node['id'], 'HAS_SUBSECTION', depth=1)
         for item in subsection_content:
@@ -347,6 +350,7 @@ class GraphRAGQuery:
                     seen_ids.add(item['id'])
                     categorized_context['subsections'].append(item)
         
+        # print("subsection_content : " , subsection_content)
         # 3. Get next content (apply thresholds)
         next_content = self.get_related_content(main_node['id'], 'NEXT', depth=1)
         for item in next_content:
@@ -368,7 +372,7 @@ class GraphRAGQuery:
                 if should_include:
                     seen_ids.add(item['id'])
                     categorized_context['next'].append(item)
-        
+        # print("next_content : " , next_content)
         # 4. Get keyword mention content (apply keyword threshold)
         mention_content = self.get_related_content(main_node['id'], 'KEYWORD_MENTIONS', depth=1)
         for item in mention_content:
@@ -382,7 +386,7 @@ class GraphRAGQuery:
                             seen_ids.add(item['id'])
                             categorized_context['keyword_matches'].append(item)
                             break
-        
+        # print("mention_content : " , mention_content)
         # 5. Get similar content (apply similarity threshold)
         similar_content = self.get_related_content(main_node['id'], 'SEMANTIC_SIMILAR_TO', depth=1)
         for item in similar_content:
@@ -395,7 +399,7 @@ class GraphRAGQuery:
                             seen_ids.add(item['id'])
                             categorized_context['semantic_matches'].append(item)
                             break
-        
+        # print("similar_content : " , similar_content)
         # Calculate cosine similarity and keyword matches for sorting within categories
         main_embedding = self.get_query_embedding(main_node['text'])
         for category in categorized_context.values():

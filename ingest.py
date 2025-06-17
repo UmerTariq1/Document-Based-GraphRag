@@ -140,7 +140,6 @@ class GraphRAGIngestion:
     def create_section_nodes(self, sections: List[Dict]):
         """Create Section nodes in Neo4j with keywords and embeddings."""
         print("🏗️  Creating section nodes...")
-        
         with self.driver.session() as session:
             for section in tqdm(sections, desc="Creating section nodes"):
                 # Calculate word count
@@ -201,7 +200,8 @@ class GraphRAGIngestion:
                     result = session.run("""
                         MATCH (parent) WHERE parent.id = $parent_id
                         MATCH (child) WHERE child.id = $child_id
-                        CREATE (parent)-[:HAS_SUBSECTION {bidirectional: true}]->(child)
+                        CREATE (parent)-[:HAS_SUBSECTION]->(child)
+                        CREATE (child)-[:PARENT]->(parent)
                         RETURN parent.id, child.id
                     """,
                     parent_id=parent_id,
@@ -248,7 +248,7 @@ class GraphRAGIngestion:
         
         print(f"✓ Created {relationship_count} sibling relationships")
     
-    def create_mention_relationships(self, sections: List[Dict], min_keyword_matches: int = 2):
+    def create_mention_relationships(self, sections: List[Dict], min_keyword_matches: int = 1):
         """Create bidirectional KEYWORD_MENTIONS relationships based on keyword matches."""
         print("🔍 Creating keyword mention relationships...")
         
@@ -264,7 +264,7 @@ class GraphRAGIngestion:
                 keywords = result.single()['keywords']
                 if not keywords:  # Skip if no keywords
                     continue
-                
+
                 # Find sections with matching keywords
                 matches = session.run("""
                     MATCH (target)
@@ -289,10 +289,12 @@ class GraphRAGIngestion:
                             SET r.keyword_match_count = $keyword_match_count
                         """, source_id=section['id'], target_id=match['target.id'], keyword_match_count=keyword_match_count)
                         relationship_count += 1
+
+                        
         
         print(f"✓ Created {relationship_count} keyword mention relationships")
     
-    def create_similarity_relationships(self, sections: List[Dict], similarity_threshold: float = 0.95):
+    def create_similarity_relationships(self, sections: List[Dict], similarity_threshold: float = 0.60):
         """Create bidirectional SEMANTIC_SIMILAR_TO relationships based on embedding similarity."""
         print("🔄 Creating semantic similarity relationships...")
         

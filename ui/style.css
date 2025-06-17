@@ -1,1 +1,940 @@
- 
+/* Glassmorphism UI for Document-Based GraphRAG */
+
+/* Global Styles */
+.stApp {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* Override all text colors */
+.stApp, .stApp * {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Main background overlay */
+.main-background {
+    background: linear-gradient(135deg, 
+        rgba(102, 126, 234, 0.1) 0%, 
+        rgba(118, 75, 162, 0.1) 25%,
+        rgba(64, 224, 208, 0.1) 50%,
+        rgba(100, 149, 237, 0.1) 75%,
+        rgba(102, 126, 234, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+
+/* Glass Container - Only apply styles when it contains content */
+.glass-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    transition: all 0.3s ease;
+    min-height: 20px; /* Prevent empty containers */
+}
+
+.glass-container:empty {
+    display: none !important; /* Hide empty containers */
+}
+
+.glass-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.4);
+}
+
+/* LLM Response Container */
+.llm-response-container {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.15) 0%, 
+        rgba(100, 149, 237, 0.15) 50%,
+        rgba(102, 126, 234, 0.15) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    border: 2px solid rgba(64, 224, 208, 0.3);
+    padding: 2.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 
+        0 12px 40px rgba(64, 224, 208, 0.2),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.llm-response-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        rgba(64, 224, 208, 0.8) 0%, 
+        rgba(100, 149, 237, 0.8) 50%,
+        rgba(64, 224, 208, 0.8) 100%);
+    border-radius: 25px 25px 0 0;
+}
+
+.llm-response-container h2 {
+    color: #40E0D0 !important;
+    text-shadow: 0 2px 10px rgba(64, 224, 208, 0.3);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+/* Answer Wrapper Container */
+.answer-wrapper {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.08) 0%, 
+        rgba(255, 255, 255, 0.04) 100%);
+    backdrop-filter: blur(25px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Source Container */
+.source-container {
+    background: linear-gradient(135deg, 
+        rgba(138, 43, 226, 0.1) 0%, 
+        rgba(75, 0, 130, 0.1) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 25px rgba(138, 43, 226, 0.15);
+}
+
+.source-container h3 {
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+    font-weight: 700 !important;
+}
+
+/* Connected Nodes Container */
+.connected-nodes-container {
+    background: linear-gradient(135deg, 
+        rgba(30, 144, 255, 0.08) 0%, 
+        rgba(0, 191, 255, 0.08) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    border: 1px solid rgba(30, 144, 255, 0.2);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 6px 20px rgba(30, 144, 255, 0.1);
+}
+
+.connected-nodes-container h3 {
+    color: #1E90FF !important;
+    text-shadow: 0 2px 8px rgba(30, 144, 255, 0.3);
+}
+
+/* Graph Visualization Container */
+.graph-viz-container {
+    background: linear-gradient(135deg, 
+        rgba(0, 206, 209, 0.1) 0%, 
+        rgba(0, 123, 191, 0.1) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    border: 1px solid rgba(0, 206, 209, 0.2);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 25px rgba(0, 206, 209, 0.15);
+}
+
+.graph-viz-container h3 {
+    color: #00CED1 !important;
+    text-shadow: 0 2px 8px rgba(0, 206, 209, 0.3);
+}
+
+/* Ingestion Container */
+.ingestion-container {
+    background: linear-gradient(135deg, 
+        rgba(32, 178, 170, 0.12) 0%, 
+        rgba(72, 209, 204, 0.12) 50%,
+        rgba(64, 224, 208, 0.12) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    border: 2px solid rgba(32, 178, 170, 0.3);
+    padding: 2.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 
+        0 15px 45px rgba(32, 178, 170, 0.2),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.ingestion-container h2 {
+    color: #20B2AA !important;
+    text-shadow: 0 2px 10px rgba(32, 178, 170, 0.4);
+}
+
+/* Upload Area */
+.upload-area {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 2px dashed rgba(64, 224, 208, 0.4);
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: rgba(64, 224, 208, 0.6);
+    background: rgba(64, 224, 208, 0.05);
+}
+
+/* Progress Container */
+.progress-container {
+    background: linear-gradient(135deg, 
+        rgba(0, 255, 127, 0.1) 0%, 
+        rgba(64, 224, 208, 0.1) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(0, 255, 127, 0.2);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 25px rgba(0, 255, 127, 0.15);
+}
+
+/* Success Container */
+.success-container {
+    background: linear-gradient(135deg, 
+        rgba(0, 255, 127, 0.15) 0%, 
+        rgba(50, 205, 50, 0.15) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 2px solid rgba(0, 255, 127, 0.3);
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 10px 30px rgba(0, 255, 127, 0.2);
+}
+
+/* Button Styling */
+.stButton > button {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.8) 0%, 
+        rgba(100, 149, 237, 0.8) 100%) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 15px !important;
+    color: white !important;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(64, 224, 208, 0.3);
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(64, 224, 208, 0.4) !important;
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.9) 0%, 
+        rgba(100, 149, 237, 0.9) 100%) !important;
+}
+
+/* Test Query Button - Special styling */
+.stButton > button[title*="test" i],
+.stButton > button:contains("🧪"),
+button[data-testid*="test" i] {
+    background: linear-gradient(135deg, 
+        rgba(255, 165, 0, 0.8) 0%, 
+        rgba(255, 140, 0, 0.8) 100%) !important;
+    color: #FFF !important;
+    border: 1px solid rgba(255, 165, 0, 0.4) !important;
+    box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3) !important;
+}
+
+.stButton > button[title*="test" i]:hover,
+button[data-testid*="test" i]:hover {
+    background: linear-gradient(135deg, 
+        rgba(255, 165, 0, 0.9) 0%, 
+        rgba(255, 140, 0, 0.9) 100%) !important;
+    box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4) !important;
+}
+
+/* Enhanced Test Query Button targeting */
+button:has-text("🧪"),
+button[title*="Test Query" i],
+button:contains("Test Query"),
+.stButton button:contains("🧪") {
+    background: linear-gradient(135deg, 
+        rgba(255, 165, 0, 0.85) 0%, 
+        rgba(255, 140, 0, 0.85) 100%) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 165, 0, 0.4) !important;
+    box-shadow: 0 4px 15px rgba(255, 165, 0, 0.35) !important;
+    font-weight: 600 !important;
+}
+
+/* Query Input Container specific styling */
+div[data-testid="column"]:has(input[placeholder*="imc Learning Suite" i]) input,
+input[placeholder*="imc Learning Suite" i],
+input[key="query_input"],
+.stTextInput:has(input[placeholder*="query" i]) input {
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(64, 224, 208, 0.4) !important;
+    border-radius: 15px !important;
+    color: white !important;
+    padding: 0.875rem 1.25rem !important;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(64, 224, 208, 0.1);
+}
+
+/* Enhanced focus state for query input */
+div[data-testid="column"]:has(input[placeholder*="imc Learning Suite" i]) input:focus,
+input[placeholder*="imc Learning Suite" i]:focus,
+input[key="query_input"]:focus,
+.stTextInput:has(input[placeholder*="query" i]) input:focus {
+    border-color: rgba(64, 224, 208, 0.8) !important;
+    box-shadow: 
+        0 0 25px rgba(64, 224, 208, 0.5),
+        0 8px 30px rgba(64, 224, 208, 0.2) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
+    outline: none !important;
+    transform: translateY(-1px);
+}
+
+/* Query input label styling */
+.stTextInput:has(input[placeholder*="query" i]) label,
+label:has(~ div input[placeholder*="query" i]) {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.75rem;
+}
+
+/* Search Button enhanced styling */
+.stButton:has(button:contains("🔍")) button,
+button:contains("🔍"),
+button[type="primary"]:contains("Search") {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.9) 0%, 
+        rgba(100, 149, 237, 0.9) 50%,
+        rgba(102, 126, 234, 0.9) 100%) !important;
+    color: white !important;
+    border: 2px solid rgba(64, 224, 208, 0.5) !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 15px !important;
+    box-shadow: 
+        0 6px 20px rgba(64, 224, 208, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Additional container styling to prevent empty spaces */
+.stContainer > div:empty,
+div[data-testid="stMarkdownContainer"]:empty,
+.element-container:empty {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* File uploader enhancements */
+section[data-testid="stFileUploader"] > label,
+.stFileUploader label {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    margin-bottom: 1rem;
+}
+
+section[data-testid="stFileUploader"] .stMarkdown,
+.stFileUploader .stMarkdown {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Drag and drop area specific styling */
+section[data-testid="stFileUploader"] > div > div,
+.upload-widget {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.06) 0%,
+        rgba(100, 149, 237, 0.06) 50%,
+        rgba(102, 126, 234, 0.06) 100%) !important;
+    border: 3px dashed rgba(64, 224, 208, 0.6) !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+    padding: 3rem 2rem !important;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+section[data-testid="stFileUploader"] > div > div:hover,
+.upload-widget:hover {
+    border-color: rgba(64, 224, 208, 0.8) !important;
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.12) 0%,
+        rgba(100, 149, 237, 0.12) 50%,
+        rgba(102, 126, 234, 0.12) 100%) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(64, 224, 208, 0.25);
+}
+
+/* Upload instruction text */
+section[data-testid="stFileUploader"] small,
+.stFileUploader small {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.95rem;
+}
+
+/* Browse files button */
+section[data-testid="stFileUploader"] button,
+.stFileUploader button {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.9) 0%, 
+        rgba(100, 149, 237, 0.9) 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    color: white !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(64, 224, 208, 0.3);
+    transition: all 0.3s ease;
+}
+
+section[data-testid="stFileUploader"] button:hover,
+.stFileUploader button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(64, 224, 208, 0.4);
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 1) 0%, 
+        rgba(100, 149, 237, 1) 100%) !important;
+}
+
+/* Tab Styling */
+.stTabs [data-baseweb="tab-list"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: transparent !important;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 600;
+    font-size: 2.5rem !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.3) 0%, 
+        rgba(100, 149, 237, 0.3) 100%) !important;
+    color: white !important;
+    font-weight: 700;
+    font-size: 2.5rem !important;
+    box-shadow: 0 4px 15px rgba(64, 224, 208, 0.2);
+}
+
+/* Comprehensive Sidebar Styling for Streamlit 1.45.1 - DARKER VERSION */
+.css-1d391kg, 
+.css-1cypcdb,
+.css-17lntkn,
+.css-nahz7x,
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, 
+        rgba(75, 0, 130, 0.25) 0%,      /* Darker purple */
+        rgba(72, 61, 139, 0.25) 25%,    /* Dark slate blue */
+        rgba(65, 105, 225, 0.25) 50%,   /* Royal blue */
+        rgba(25, 25, 112, 0.25) 100%) !important;  /* Midnight blue */
+    backdrop-filter: blur(20px);
+    border-right: 2px solid rgba(64, 224, 208, 0.3) !important;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar content wrapper */
+section[data-testid="stSidebar"] > div {
+    background: transparent !important;
+}
+
+/* Sidebar text elements */
+section[data-testid="stSidebar"] * {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Sidebar headers */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #40E0D0 !important;
+    text-shadow: 0 2px 8px rgba(64, 224, 208, 0.4);
+}
+
+/* Sidebar slider text/range values */
+section[data-testid="stSidebar"] .stSlider div[data-testid*="stMarkdown"],
+section[data-testid="stSidebar"] .stSlider .stMarkdown,
+section[data-testid="stSidebar"] .stSlider p,
+section[data-testid="stSidebar"] .stSlider span {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Slider value display */
+section[data-testid="stSidebar"] .stSlider div[role="slider"] + div,
+section[data-testid="stSidebar"] .stSlider .slider-value {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+
+/* Sidebar radio buttons */
+section[data-testid="stSidebar"] .stRadio > div {
+    background: transparent !important;
+}
+
+section[data-testid="stSidebar"] .stRadio label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Sidebar checkboxes */
+section[data-testid="stSidebar"] .stCheckbox > label > div {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(64, 224, 208, 0.4) !important;
+    border-radius: 5px;
+}
+
+section[data-testid="stSidebar"] .stCheckbox label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Input Styling - COMPREHENSIVE */
+.stTextInput > div > div > input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(64, 224, 208, 0.3) !important;
+    border-radius: 12px !important;
+    color: white !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stTextInput > div > div > input::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.stTextInput > div > div > input:focus,
+input:focus,
+textarea:focus {
+    border-color: rgba(64, 224, 208, 0.7) !important;
+    box-shadow: 0 0 20px rgba(64, 224, 208, 0.4) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    outline: none !important;
+}
+
+/* Input Labels */
+.stTextInput > label,
+label {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Selectbox Styling */
+.stSelectbox > div > div {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 2px solid rgba(64, 224, 208, 0.3) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(15px);
+}
+
+.stSelectbox > div > div > div {
+    color: white !important;
+    /* padding: 0.75rem 1rem; */
+}
+
+.stSelectbox label {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+}
+
+/* File Uploader Styling - ENHANCED */
+.stFileUploader,
+.stFileUploader > div,
+section[data-testid="stFileUploader"] {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.08) 0%,
+        rgba(100, 149, 237, 0.08) 100%) !important;
+    backdrop-filter: blur(15px);
+    border: 2px dashed rgba(64, 224, 208, 0.5) !important;
+    border-radius: 15px !important;
+    padding: 2rem !important;
+    transition: all 0.3s ease;
+}
+
+.stFileUploader:hover,
+.stFileUploader > div:hover {
+    border-color: rgba(64, 224, 208, 0.8) !important;
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.12) 0%,
+        rgba(100, 149, 237, 0.12) 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(64, 224, 208, 0.3);
+}
+
+.stFileUploader label,
+.stFileUploader * {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.stFileUploader small {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Progress Bar Styling */
+.stProgress > div > div > div {
+    background: linear-gradient(90deg, 
+        rgba(64, 224, 208, 0.9) 0%, 
+        rgba(100, 149, 237, 0.9) 100%) !important;
+    border-radius: 10px;
+}
+
+.stProgress > div > div {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px;
+}
+
+/* Success/Error/Info Messages */
+.stSuccess {
+    background: linear-gradient(135deg, 
+        rgba(0, 255, 127, 0.15) 0%, 
+        rgba(50, 205, 50, 0.15) 100%) !important;
+    border: 1px solid rgba(0, 255, 127, 0.3) !important;
+    color: #00FF7F !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px);
+}
+
+.stError {
+    background: linear-gradient(135deg, 
+        rgba(255, 69, 58, 0.15) 0%, 
+        rgba(255, 20, 147, 0.15) 100%) !important;
+    border: 1px solid rgba(255, 69, 58, 0.3) !important;
+    color: #FF4545 !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px);
+}
+
+.stInfo {
+    background: linear-gradient(135deg, 
+        rgba(30, 144, 255, 0.15) 0%, 
+        rgba(0, 191, 255, 0.15) 100%) !important;
+    border: 1px solid rgba(30, 144, 255, 0.3) !important;
+    color: #1E90FF !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px);
+}
+
+.stWarning {
+    background: linear-gradient(135deg, 
+        rgba(255, 165, 0, 0.15) 0%, 
+        rgba(255, 140, 0, 0.15) 100%) !important;
+    border: 1px solid rgba(255, 165, 0, 0.3) !important;
+    color: #FFA500 !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Expander Styling */
+.streamlit-expanderHeader {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.streamlit-expanderContent {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px);
+    border-radius: 0 0 10px 10px;
+}
+
+/* Code Block Styling */
+.stCodeBlock {
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 12px !important;
+    border: 2px solid rgba(64, 224, 208, 0.3) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.stCodeBlock code {
+    color: #40E0D0 !important;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.stCodeBlock pre {
+    background: transparent !important;
+}
+
+/* Spinner Styling */
+.stSpinner > div {
+    border-top-color: #40E0D0 !important;
+    border-right-color: rgba(64, 224, 208, 0.3) !important;
+    border-bottom-color: rgba(64, 224, 208, 0.3) !important;
+    border-left-color: rgba(64, 224, 208, 0.3) !important;
+}
+
+/* Balloons Override */
+.stBalloons {
+    background: transparent !important;
+}
+
+/* Custom Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 8px 32px rgba(64, 224, 208, 0.2);
+    }
+    50% {
+        box-shadow: 0 12px 40px rgba(64, 224, 208, 0.4);
+    }
+    100% {
+        box-shadow: 0 8px 32px rgba(64, 224, 208, 0.2);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 3s ease-in-out infinite;
+}
+
+/* Hide Streamlit branding */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.6) 0%, 
+        rgba(100, 149, 237, 0.6) 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, 
+        rgba(64, 224, 208, 0.8) 0%, 
+        rgba(100, 149, 237, 0.8) 100%);
+}
+
+/* Text color fixes for better visibility */
+p, span, div {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Ensure headings are visible */
+h1, h2, h3, h4, h5, h6 {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Labels for form elements */
+label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Help text */
+.help {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* -------------------------------------------------- */
+/* Redesigned Navigation (st.radio) as Glass Tabs     */
+/* -------------------------------------------------- */
+
+/* Make the whole radio group sit inline like tabs */
+.stRadio [role="radiogroup"] {
+    display: flex !important;
+    gap: 1rem;
+    flex-wrap: nowrap;
+}
+
+/* BaseWeb radio outer wrapper */
+.stRadio [data-baseweb="radio"] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    padding: 0.6rem 2rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+/* Remove default circle + bullet */
+.stRadio [data-baseweb="radio"] svg,
+.stRadio [data-baseweb="radio"] input[type="radio"] {
+    display: none !important;
+}
+
+/* Label text styling */
+.stRadio [data-baseweb="radio"] span {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Hover effect */
+.stRadio [data-baseweb="radio"]:hover {
+    transform: translateY(-2px);
+    border-color: rgba(64, 224, 208, 0.5);
+    box-shadow: 0 6px 20px rgba(64, 224, 208, 0.35);
+}
+
+/* Selected tab */
+.stRadio [data-baseweb="radio"][aria-checked="true"] {
+    background: linear-gradient(135deg, rgba(64, 224, 208, 0.85) 0%, rgba(100, 149, 237, 0.85) 100%);
+    border-color: rgba(64, 224, 208, 0.8);
+    box-shadow: 0 6px 25px rgba(64, 224, 208, 0.45);
+}
+
+.stRadio [data-baseweb="radio"][aria-checked="true"] span {
+    color: #FFFFFF;
+}
+
+/* -------------------------------------------------- */
+/* Streamlit v1.45+ Text Input Override                */
+/* -------------------------------------------------- */
+
+/* Wrapper that holds the actual <input> element */
+div[data-baseweb="input"] {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(64, 224, 208, 0.4) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
+}
+
+/* Hover / focus feedback */
+div[data-baseweb="input"]:hover,
+div[data-baseweb="input"]:focus-within {
+    border-color: rgba(64, 224, 208, 0.8) !important;
+    box-shadow: 0 0 20px rgba(64, 224, 208, 0.4) !important;
+}
+
+/* The actual editable <input> tag */
+div[data-baseweb="input"] input {
+    background: transparent !important; /* Keep transparency so wrapper provides backdrop blur */
+    color: #FFFFFF !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Placeholder text */
+div[data-baseweb="input"] input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Remove Streamlit's default invalid-state red outline */
+div[data-baseweb="input"] input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Fix stubborn dark background on some Streamlit themes */
+div[data-baseweb="input"],
+div[data-baseweb="input"] > div,
+div[data-baseweb="base-input"],
+div[data-baseweb="base-input"] > div {
+    background: rgba(51, 75, 112, 0.08) !important; /* wrapper color */
+    background-color: rgba(51, 75, 112, 0.08) !important;
+}
+
+div[data-baseweb="base-input"] input,
+div[data-baseweb="input"] input {
+    background: transparent !important;
+    background-color: transparent !important; /* ensure transparent */
+}
+
+/* ------------------------------------------------------------------ */
+/* Graph Visualization <pre><code> block styling to match glass theme */
+/* ------------------------------------------------------------------ */
+.graph-viz-container pre {
+    background: rgba(255, 255, 255, 0.08);           /* subtle light overlay */
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(64, 224, 208, 0.3);        /* cyan outline */
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.graph-viz-container code {
+    color: #40E0D0 !important;                        /* match accent color */
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.95rem;
+    background: transparent !important;              /* keep parent backdrop */
+}
+
+/* Optional hover effect (subtle) */
+.graph-viz-container pre:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+} 

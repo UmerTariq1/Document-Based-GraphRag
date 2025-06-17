@@ -24,4 +24,4 @@ Based on the user's query and the provided context from the main section and con
 5. **Be comprehensive but focused** on answering the specific question asked
 6. **If information is incomplete or missing**, acknowledge this clearly
 
-Your response should be well-structured, informative, and directly address the user's question using the provided context. 
+Your response should be well-structured, informative, and directly address the user's question using the provided context. Dont forget to cite the sections which are used for a specific part of the answer.

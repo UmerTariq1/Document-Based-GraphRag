@@ -13,6 +13,25 @@ from query import GraphRAGQuery
 from ingest import GraphRAGIngestion
 from pdf_reader import parse_pdf
 
+def load_css():
+    """Load and inject custom CSS styles."""
+    css_file = Path(__file__).parent / "style.css"
+    if css_file.exists():
+        with open(css_file) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    else:
+        st.warning("CSS file not found. Using default styling.")
+
+def styled_container(css_class: str, content_func):
+    """Create a styled container using Streamlit's container and CSS classes."""
+    container = st.container()
+    with container:
+        # Apply CSS class to container
+        container._get_widget_id = lambda: f"styled-{css_class}"
+        st.markdown(f'<div class="{css_class}">', unsafe_allow_html=True)
+        content_func()
+        st.markdown('</div>', unsafe_allow_html=True)
+
 def initialize_session_state():
     """Initialize session state variables."""
     if 'query_engine' not in st.session_state:
@@ -46,21 +65,26 @@ def convert_document_to_dict_list(document) -> List[Dict]:
 
 def process_pdf_and_ingest(uploaded_file):
     """Process uploaded PDF and ingest into Neo4j in one seamless flow."""
-    progress_bar = st.progress(0)
-    status_text = st.empty()
+    # Create progress container with styling
+    progress_container = st.container()
+    with progress_container:
+        st.markdown('<div class="progress-container slide-in">', unsafe_allow_html=True)
+        progress_bar = st.progress(0, text="0%")
+        status_text = st.empty()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     try:
         # Step 1: Save uploaded file temporarily
         status_text.text("📁 Processing uploaded PDF...")
-        progress_bar.progress(10)
-        
+        progress_bar.progress(10, text="10%")
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         
         # Step 2: Parse PDF to structured data
         status_text.text("🔍 Extracting content from PDF...")
-        progress_bar.progress(30)
+        progress_bar.progress(30, text="30%")
         
         document = parse_pdf(tmp_file_path)
         sections_data = convert_document_to_dict_list(document)
@@ -71,33 +95,34 @@ def process_pdf_and_ingest(uploaded_file):
         
         # Step 3: Initialize ingestion engine
         status_text.text("🔗 Connecting to Neo4j database...")
-        progress_bar.progress(50)
+        progress_bar.progress(50, text="50%")
         
         ingestion = GraphRAGIngestion()
         
         # Step 4: Clear existing data and ingest new data
         status_text.text("🧹 Clearing existing data...")
-        progress_bar.progress(60)
+        progress_bar.progress(60, text="60%")
         ingestion.clear_database()
         
         # Step 5: Create graph structure
-        status_text.text("🏗️ Creating section nodes...")
-        progress_bar.progress(70)
+        status_text.text("🏗️ Creating section nodes... (might take a while)")
+        progress_bar.progress(70, text="70%")
         ingestion.create_section_nodes(sections_data)
-        
+
         status_text.text("🔗 Creating relationships...")
-        progress_bar.progress(80)
+        progress_bar.progress(80, text="80%")
         ingestion.create_hierarchical_relationships(sections_data)
         ingestion.create_sibling_relationships(sections_data)
         ingestion.create_mention_relationships(sections_data)
         ingestion.create_similarity_relationships(sections_data)
+
         
         status_text.text("🔍 Creating indexes...")
-        progress_bar.progress(90)
+        progress_bar.progress(90, text="90%")
         ingestion.create_indexes()
         
         # Step 6: Show completion
-        progress_bar.progress(100)
+        progress_bar.progress(100, text="100%")
         status_text.text("✅ Ingestion completed successfully!")
         
         # Clean up
@@ -122,67 +147,82 @@ def show_ingestion_tab():
     """Display the ingestion tab content."""
     # Sidebar content for ingestion
     with st.sidebar:
-        st.markdown("### 📚 Document-Based GraphRAG")
-        st.markdown("""
-        **Transform your PDFs into intelligent knowledge graphs!**
-        
-        This tool helps you:
-        - 📄 **Extract** structured content from PDF documents
-        - 🕸️ **Build** semantic knowledge graphs with AI
-        - 🔍 **Query** your documents using natural language
-        - 🧠 **Get** AI-powered insights and answers
-        
-        **Perfect for:**
-        - Technical documentation
-        - Research papers  
-        - Product manuals
-        - Policy documents
-        - Educational materials
-        
-        **How it works:**
-        1. Upload your PDF
-        2. AI extracts sections and relationships
-        3. Query in plain English
-        4. Get comprehensive answers!
-        """)
-        
-        st.markdown("---")
-        st.markdown("**💡 Tip:** Start with technical documents that have clear section structures for best results.")
+        # Create sidebar content in a container
+        sidebar_container = st.container()
+        with sidebar_container:
+            st.markdown("### 📚 Document-Based GraphRAG")
+            st.markdown("""
+            **Transform your PDFs into intelligent knowledge graphs!**
+            
+            This tool helps you:
+            - 📄 **Extract** structured content from PDF documents
+            - 🕸️ **Build** semantic knowledge graphs with AI
+            - 🔍 **Query** your documents using natural language
+            - 🧠 **Get** AI-powered insights and answers
+            
+            **Perfect for:**
+            - Technical documentation
+            - Research papers  
+            - Product manuals
+            - Policy documents
+            - Educational materials
+            
+            **How it works:**
+            1. Upload your PDF
+            2. AI extracts sections and relationships
+            3. Query in plain English
+            4. Get comprehensive answers!
+            """)
+            
+            st.markdown("---")
+            st.markdown("**💡 Tip:** Start with technical documents that have clear section structures for best results.")
     
-    # Main content area
-    st.markdown("## 🚀 Document Ingestion")
-    st.markdown("""
-    Upload a PDF document to extract its content and build an intelligent knowledge graph.
-    The system will automatically identify sections, extract relationships, and prepare your document for intelligent querying.
-    """)
+    # Main content area with proper styling
+    main_container = st.container()
+    with main_container:
+        st.markdown("""
+        <div class="ingestion-container slide-in">
+        <h2>🚀 Document Ingestion</h2>
+        <p>Upload a PDF document to extract its content and build an intelligent knowledge graph.
+        The system will automatically identify sections, extract relationships, and prepare your document for intelligent querying.</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     # File upload section
-    st.markdown("### 📁 Upload PDF Document")
-    uploaded_file = st.file_uploader(
-        "Choose a PDF file",
-        type=['pdf'],
-        help="Upload a PDF document with structured content (sections, subsections, etc.)"
-    )
+    upload_container = st.container()
+    with upload_container:
+        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+        st.markdown("### 📁 Upload PDF Document")
+        uploaded_file = st.file_uploader(
+            "Choose a PDF file",
+            type=['pdf'],
+            help="Upload a PDF document with structured content (sections, subsections, etc.)"
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
     
     if uploaded_file is not None:
         # Show file details
-        file_details = {
-            "Filename": uploaded_file.name,
-            "File size": f"{uploaded_file.size / 1024:.2f} KB"
-        }
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("**File Details:**")
-            for key, value in file_details.items():
-                st.text(f"{key}: {value}")
-        
-        with col2:
-            st.markdown("**What happens next:**")
-            st.text("✓ Extract document structure")
-            st.text("✓ Identify sections and relationships") 
-            st.text("✓ Generate semantic embeddings")
-            st.text("✓ Build knowledge graph in Neo4j")
+        details_container = st.container()
+        with details_container:
+            st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+            file_details = {
+                "Filename": uploaded_file.name,
+                "File size": f"{uploaded_file.size / 1024:.2f} KB"
+            }
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**File Details:**")
+                for key, value in file_details.items():
+                    st.text(f"{key}: {value}")
+            
+            with col2:
+                st.markdown("**What happens next:**")
+                st.text("✓ Extract document structure")
+                st.text("✓ Identify sections and relationships") 
+                st.text("✓ Generate semantic embeddings")
+                st.text("✓ Build knowledge graph in Neo4j")
+            st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown("---")
         
@@ -193,16 +233,21 @@ def show_ingestion_tab():
             success = process_pdf_and_ingest(uploaded_file)
             
             if success:
-                st.success("🎉 **Ingestion completed successfully!**")
-                st.markdown("""
-                Your document has been processed and is now ready for querying:
-                - ✅ Content extracted and structured
-                - ✅ Knowledge graph created in Neo4j
-                - ✅ Semantic relationships established
-                - ✅ Ready for intelligent querying
-                
-                **Next steps:** Switch to the **Query** tab to start asking questions about your document!
-                """)
+                success_container = st.container()
+                with success_container:
+                    st.markdown("""
+                    <div class="success-container slide-in">
+                    <h3>🎉 Ingestion completed successfully!</h3>
+                    <p>Your document has been processed and is now ready for querying:</p>
+                    <ul>
+                        <li>✅ Content extracted and structured</li>
+                        <li>✅ Knowledge graph created in Neo4j</li>
+                        <li>✅ Semantic relationships established</li>
+                        <li>✅ Ready for intelligent querying</li>
+                    </ul>
+                    <p><strong>Next steps:</strong> Switch to the <strong>Query</strong> tab to start asking questions about your document!</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 # Show some basic stats
                 if hasattr(st.session_state, 'query_engine'):
@@ -221,28 +266,32 @@ def show_ingestion_tab():
         # Show example of what kind of documents work well
         with st.expander("💡 What kind of documents work best?"):
             st.markdown("""
-            **Ideal documents:**
-            - Technical manuals with numbered sections (1.1, 1.2, etc.)
-            - Research papers with clear structure
-            - Policy documents with hierarchical organization
-            - Educational materials with chapters and sections
-            
-            **Document requirements:**
-            - PDF format
-            - Text-based content (not scanned images)
-            - Clear section numbering and titles
-            - Structured layout with headings
-            
-            **Example structure:**
-            ```
-            1. Introduction
-            1.1 Overview
-            1.2 Purpose
-            2. Main Content
-            2.1 Features
-            2.2 Benefits
-            ```
-            """)
+            <div class="glass-container">
+            <h4>Ideal documents:</h4>
+            <ul>
+                <li>Technical manuals with numbered sections (1.1, 1.2, etc.)</li>
+                <li>Research papers with clear structure</li>
+                <li>Policy documents with hierarchical organization</li>
+                <li>Educational materials with chapters and sections</li>
+            </ul>
+            <h4>Document requirements:</h4>
+            <ul>
+                <li>PDF format</li>
+                <li>Text-based content (not scanned images)</li>
+                <li>Clear section numbering and titles</li>
+                <li>Structured layout with headings</li>
+            </ul>
+            <h4>Example structure:</h4>
+                <ul>
+                    1. Introduction
+                    1.1 Overview
+                    1.2 Purpose
+                    2. Main Content
+                    2.1 Features
+                    2.2 Benefits
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
 def get_relationship_details(query_engine, main_node_id: str, related_node_id: str) -> dict:
     """Get details about the relationship between two nodes."""
@@ -288,44 +337,54 @@ def get_relationship_details(query_engine, main_node_id: str, related_node_id: s
         return relationships
 
 def display_results(results, query_engine):
-    """Display query results in a structured way."""
-    # LLM Response section (show first if available)
-    if results.get('llm_response'):
-        st.markdown("## 🤖 AI-Generated Response")
-        with st.container():
-            st.markdown(results['llm_response'])
+    """Display query results in a structured way with custom styling."""
+    # Wrap entire results in answer wrapper
+    results_container = st.container()
+    with results_container:        
+        # LLM Response section (show first if available)
+        if results.get('llm_response'):
+            st.markdown(f"""
+            <div class="llm-response-container pulse-animation">
+            <h2>🤖 AI-Generated Response</h2>
+            <div class="llm-content">
+            {results['llm_response']}
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Add expandable section for prompt debugging
+            if results.get('prompt_used'):
+                with st.expander("🔍 View Prompt Used (Debug)"):
+                    st.text(results['prompt_used'])
+            
+            st.markdown("---")
         
-        # Add expandable section for prompt debugging
-        if results.get('prompt_used'):
-            with st.expander("🔍 View Prompt Used (Debug)"):
-                st.text(results['prompt_used'])
+        # Main answer section
+        st.markdown(f"""
+        <div class="source-container">
+        <h3>📄 Primary Source: <br><br>  Section {results['id']}: {results['title']}</h3>
+        <p><strong>Page Number:</strong> {results.get('page_number', 'N/A')} | <strong>Query Similarity:</strong> {results['similarity_score']:.2f} | <strong>Keyword Matches:</strong> {results.get('keyword_match_count', 0)}</p>
+        """, unsafe_allow_html=True)
         
-        st.markdown("---")
-    
-    # Main answer section
-    with st.container():
         # Get keyword matches for main node
-        main_keyword_matches = results.get('keyword_match_count', 0)
         main_matching_keywords = results.get('matching_keywords', [])
-
-        # Make section number and title as heading
-        st.markdown(f"### 📄 Source: Section {results['id']}: {results['title']}")
-        
-        st.markdown(f"**Page Number :** {results.get('page_number', 'N/A')} , **Query Similarity:** {results['similarity_score']:.2f}, **Number of matching keywords:** {main_keyword_matches}")
-
-        if main_keyword_matches > 0:
+        if main_matching_keywords:
             st.markdown(f"**Matching Keywords:** {', '.join(main_matching_keywords)}")
         else:
-            st.markdown(f"**Matching Keywords:** _No matching keywords found._")
+            st.markdown("**Matching Keywords:** _No matching keywords found._")
 
-        st.markdown("**Original Content:**")
+        st.markdown("**Content of the primary Section :**")
         if results['answer']:
             st.markdown(results['answer'])
         else:
             st.markdown("_This section has no body of text._")
         
+        st.markdown('</div>', unsafe_allow_html=True)
+            
         # Related context section
+        st.markdown('<div class="connected-nodes-container">', unsafe_allow_html=True)
         st.markdown("### 📚 Connected Nodes")
+
         for item in results['context']:
             try:
                 relationships = get_relationship_details(query_engine, results['id'], item['id'])
@@ -398,144 +457,197 @@ def display_results(results, query_engine):
                     else:
                         st.markdown("_This section has no body of text._")
         
+        st.markdown('</div>', unsafe_allow_html=True)
+        
         # Visualization section
-        st.markdown("### 🔍 Graph Visualization")
-        st.markdown("Run this query in Neo4j Browser to visualize the graph:")
-        st.code(results['visualization_query'], language="cypher")
+        st.markdown(f"""
+        <div class="graph-viz-container">
+        <h3>🔍 Graph Visualization</h3>
+        <p>Run this query in Neo4j Browser to visualize the graph:</p>
+        <pre><code class="language-cypher">{results['visualization_query']}</code></pre>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Close answer wrapper
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def show_query_tab():
     """Display the query tab content."""
     # Sidebar with controls
     with st.sidebar:
-        st.markdown("### ⚙️ Query Settings")
-        
-        # Main node thresholds
-        st.markdown("**Main Node Thresholds:**")
-        main_min_keyword_matches = st.slider(
-            "Main Node - Minimum Keyword Matches",
-            min_value=1,
-            max_value=10,
-            value=2,
-            help="Minimum number of matching keywords required for the main node"
-        )
-        
-        main_similarity_threshold = st.slider(
-            "Main Node - Similarity Threshold",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.7,
-            step=0.01,
-            help="Minimum similarity score required for the main node"
-        )
-        
-        # Result filtering
-        st.markdown("### 🔍 Result Filtering")
-        st.markdown("**Connected Nodes Thresholds:**")
-        connected_min_keyword_matches = st.slider(
-            "Connected Nodes - Minimum Keyword Matches",
-            min_value=1,
-            max_value=10,
-            value=2,
-            help="Minimum number of matching keywords required for connected nodes"
-        )
-        
-        connected_similarity_threshold = st.slider(
-            "Connected Nodes - Similarity Threshold",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.7,
-            step=0.01,
-            help="Minimum similarity score required for connected nodes"
-        )
-        
-        filter_type = st.radio(
-            "Sort by",
-            ["Keyword Matches", "Similarity Score"],
-            help="Choose how to sort the results"
-        )
-        
-        max_results = st.slider(
-            "Maximum Results",
-            min_value=1,
-            max_value=20,
-            value=5,
-            help="Maximum number of results to display"
-        )
-        
-        # LLM Configuration
-        st.markdown("### 🤖 LLM Settings")
-        enable_llm = st.checkbox(
-            "Enable AI Response",
-            value=True,
-            help="Generate AI-powered responses using OpenAI"
-        )
-        
-        if enable_llm:
-            llm_model = st.selectbox(
-                "Model",
-                ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
-                index=0,
-                help="Choose the OpenAI model to use"
+        sidebar_container = st.container()
+        with sidebar_container:
+            st.markdown("### ⚙️ Query Settings")
+            
+            # Main node thresholds
+            st.markdown("**Main Node Thresholds:**")
+            main_min_keyword_matches = st.slider(
+                "Main Node - Minimum Keyword Matches",
+                min_value=1,
+                max_value=10,
+                value=2,
+                help="Minimum number of matching keywords required for the main node"
             )
             
-            max_tokens = st.slider(
-                "Max Response Length",
-                min_value=500,
-                max_value=3000,
-                value=1500,
-                step=100,
-                help="Maximum number of tokens in the AI response"
+            main_similarity_threshold = st.slider(
+                "Main Node - Similarity Threshold",
+                min_value=0.60,
+                max_value=1.0,
+                value=0.7,
+                step=0.01,
+                help="Minimum similarity score required for the main node"
             )
-        
-        # Keyword exclusion
-        st.markdown("### 🚫 Exclude Keywords")
-        exclude_keyword = st.text_input(
-            "Add keyword to exclude",
-            placeholder="Enter keyword or phrase to exclude",
-            help="Keywords entered here will be ignored during keyword matching"
-        )
-        
-        # Add keyword to exclusion list
-        if exclude_keyword and st.button("Add"):
-            st.session_state.excluded_keywords.add(exclude_keyword.lower())
-            st.rerun()
-        
-        # Display excluded keywords with remove buttons
-        if st.session_state.excluded_keywords:
-            st.markdown("**Excluded keywords:**")
-            cols = st.columns(2)  # Create 3 columns for the grid
-            for i, keyword in enumerate(sorted(st.session_state.excluded_keywords)):
-                col_idx = i % 2
-                with cols[col_idx]:
-                    if st.button(f"❌ {keyword}", key=f"remove_{keyword}"):
-                        st.session_state.excluded_keywords.remove(keyword)
-                        st.rerun()
-        
-        if st.button("Clear Results"):
-            st.session_state.last_query = None
-            st.session_state.last_results = None
-            st.rerun()
+            
+            # Result filtering
+            st.markdown("### 🔍 Result Filtering")
+            st.markdown("**Connected Nodes Thresholds:**")
+            connected_min_keyword_matches = st.slider(
+                "Connected Nodes - Minimum Keyword Matches",
+                min_value=1,
+                max_value=10,
+                value=2,
+                help="Minimum number of matching keywords required for connected nodes"
+            )
+            
+            connected_similarity_threshold = st.slider(
+                "Connected Nodes - Similarity Threshold",
+                min_value=0.60,
+                max_value=1.0,
+                value=0.7,
+                step=0.01,
+                help="Minimum similarity score required for connected nodes"
+            )
+            
+            filter_type = st.radio(
+                "Sort by",
+                ["Keyword Matches", "Similarity Score"],
+                help="Choose how to sort the results"
+            )
+            
+            max_results = st.slider(
+                "Maximum Connected Nodes",
+                min_value=1,
+                max_value=20,
+                value=5,
+                help="Maximum number of results to display"
+            )
+            
+            # LLM Configuration
+            st.markdown("### 🤖 LLM Settings")
+            enable_llm = st.checkbox(
+                "Enable AI Response",
+                value=True,
+                help="Generate AI-powered responses using OpenAI"
+            )
+            
+            if enable_llm:
+                llm_model = st.selectbox(
+                    "Model",
+                    ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
+                    index=0,
+                    help="Choose the OpenAI model to use"
+                )
+                
+                max_tokens = st.slider(
+                    "Max Response Length",
+                    min_value=500,
+                    max_value=3000,
+                    value=1500,
+                    step=100,
+                    help="Maximum number of tokens in the AI response"
+                )
+            
+            # Keyword exclusion
+            st.markdown("### 🚫 Exclude Keywords")
+            exclude_keyword = st.text_input(
+                "Add keyword to exclude",
+                placeholder="Enter keyword or phrase to exclude",
+                help="Keywords entered here will be ignored during keyword matching"
+            )
+            
+            # Add keyword to exclusion list
+            if exclude_keyword and st.button("Add"):
+                st.session_state.excluded_keywords.add(exclude_keyword.lower())
+                st.rerun()
+            
+            # Display excluded keywords with remove buttons
+            if st.session_state.excluded_keywords:
+                st.markdown("**Excluded keywords:**")
+                cols = st.columns(2)  # Create 3 columns for the grid
+                for i, keyword in enumerate(sorted(st.session_state.excluded_keywords)):
+                    col_idx = i % 2
+                    with cols[col_idx]:
+                        if st.button(f"❌ {keyword}", key=f"remove_{keyword}"):
+                            st.session_state.excluded_keywords.remove(keyword)
+                            st.rerun()
+            
+            if st.button("Clear Results"):
+                st.session_state.last_query = None
+                st.session_state.last_results = None
+                st.rerun()
     
     # Main query interface
-    st.markdown("## 🔍 Query Your Knowledge Graph")
-    st.markdown("""
-    Ask questions about your ingested documents in natural language.
-    The system will find relevant content and show how different pieces of information are connected.
-    """)
+    query_container = st.container()
+    with query_container:
+        st.markdown("""
+        <div class="glass-container slide-in">
+        <h2>🔍 Query Your Knowledge Graph</h2>
+        <p>Ask questions about your ingested documents in natural language.
+        The system will find relevant content and show how different pieces of information are connected.</p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Test button and query input in a row
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        if st.button("🧪 Test Query", help="Click to run a test query"):
-            st.session_state.query_input = "How can learning content be offered, and which international standards (such as SCORM, xAPI, LTI, and QTI) are supported?"
-            st.rerun()
-    
-    with col2:
+    # Initialize sample query in session state if not exists
+    if 'selected_sample_query' not in st.session_state:
+        st.session_state.selected_sample_query = ""
+
+    # Utility callback to copy a sample query into the text input in one run
+    def _set_sample_query(text: str):
+        """Populate the query text input with the chosen sample query."""
+        st.session_state["query_input"] = text
+        st.session_state.selected_sample_query = text
+
+    # Query input - full width
+    input_container = st.container()
+    with input_container:
+        st.markdown('<div class="glass-container">', unsafe_allow_html=True)
         query = st.text_input(
             "Enter your query:",
             placeholder="e.g., What is the imc Learning Suite?",
             key="query_input"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Sample queries in expandable section
+    sample_queries_container = st.container()
+    with sample_queries_container:
+        with st.expander("💡 Sample Queries"):
+            # Sample query 1
+            st.button(
+                "How can learning content be offered, and which international standards (such as SCORM, xAPI, LTI, and QTI) are supported?",
+                use_container_width=True,
+                on_click=_set_sample_query,
+                args=(
+                    "How can learning content be offered, and which international standards (such as SCORM, xAPI, LTI, and QTI) are supported?",
+                ),
+            )
+            
+            # Sample query 2
+            st.button(
+                "What is the imc Learning Suite?",
+                use_container_width=True,
+                on_click=_set_sample_query,
+                args=("What is the imc Learning Suite?",),
+            )
+
+            st.button(
+                "How does the system support compliance-related training and certification, and what features ensure traceability and control throughout the process?",
+                use_container_width=True,
+                on_click=_set_sample_query,
+                args=("How does the system support compliance-related training and certification, and what features ensure traceability and control throughout the process?",),
+            )
+            
+        st.markdown("")
     
     # Search button
     if st.button("🔍 Search", type="primary"):
@@ -599,30 +711,52 @@ def show_query_tab():
         else:
             display_results(st.session_state.last_results, st.session_state.query_engine)
 
+def show_ingestion_sidebar():
+    with st.sidebar:
+        # ---- your existing ingestion sidebar code ----
+        ...
+
+def show_query_sidebar():
+    with st.sidebar:
+        # ---- your existing query sidebar code ----
+        ...
+
 def main():
     st.set_page_config(
         page_title="GraphRAG - Document Intelligence",
         page_icon="🔍",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
-    
-    # Initialize session state
+
+    load_css()
     initialize_session_state()
-    
-    # Header
-    st.title("🔍 Document-Based GraphRAG")
-    st.markdown("""
-    Transform your PDF documents into intelligent knowledge graphs and query them using natural language.
-    Upload documents, build semantic relationships, and get AI-powered insights.
-    """)
-    
-    # Create tabs
-    tab1, tab2 = st.tabs(["📁 Ingestion", "🔍 Query"])
-    
-    with tab1:
+
+    # ------------------------------------------------------------------
+    # 1. Navigation widget – this is what sets the "active tab".
+    # ------------------------------------------------------------------
+    page = st.radio(
+        "Navigation",
+        ("📁 Ingestion", "🔍 Query"),
+        horizontal=True,
+        label_visibility="collapsed",
+        key="navigation_radio"
+    )
+
+    # ------------------------------------------------------------------
+    # 2. Build sidebar *before* the main area, based on 'page'.
+    # ------------------------------------------------------------------
+    if page == "📁 Ingestion":
+        show_ingestion_sidebar()
+    else:
+        show_query_sidebar()
+
+    # ------------------------------------------------------------------
+    # 3. Main area.
+    # ------------------------------------------------------------------
+    if page == "📁 Ingestion":
         show_ingestion_tab()
-    
-    with tab2:
+    else:
         show_query_tab()
 
 if __name__ == "__main__":
