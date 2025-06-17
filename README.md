@@ -126,35 +126,45 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 
 ### Usage Workflow
 
-#### Step 1: Parse PDF Document
-```bash
-# Configure PDF path in parse_pdf.py
-python parse_pdf.py
-```
-- **Input**: `data/your_document.pdf`
-- **Output**: `data/structured_content.json`
-
-#### Step 2: Ingest into Knowledge Graph
-```bash
-python ingest.py
-```
-- **Input**: `data/structured_content.json`
-- **Output**: Populated Neo4j graph database
-- **Process**: Creates nodes, relationships, indexes, and embeddings
-
-#### Step 3: Launch Interactive Interface
+#### Step 1: Launch the Web Interface
 ```bash
 streamlit run ui/visualize.py
 ```
 - **Access**: Open `http://localhost:8501` in your browser
-- **Features**: Query interface with AI-powered responses
+- **Features**: Two main tabs - Ingestion and Query
+
+#### Step 2: Document Ingestion
+1. Navigate to the **📁 Ingestion** tab
+2. Upload your PDF document using the file uploader
+3. Click "🚀 Start Ingestion" to process the document
+4. The system will:
+   - Extract document structure
+   - Create knowledge graph in Neo4j
+   - Generate semantic relationships
+   - Show progress in real-time
+
+#### Step 3: Query Your Documents
+1. Switch to the **🔍 Query** tab
+2. Enter your question in natural language
+3. Use the sidebar to configure:
+   - Similarity thresholds
+   - Keyword matching requirements
+   - AI response settings
+   - Result filtering options
+4. Click "🔍 Search" to get:
+   - AI-generated response
+   - Source content with relationships
+   - Connected sections
+   - Graph visualization query
+
+#### Optional: Advanced Configuration
+- Adjust thresholds in the sidebar
+- Exclude specific keywords
+- Choose different AI models
+- Customize result sorting and filtering
 
 ## 🎮 Using the Interface
 
-### Query Examples:
-- "What is the imc Learning Suite?"
-- "How can learning content be offered?"
-- "Which international standards are supported?"
 
 ### Interface Features:
 
@@ -189,17 +199,6 @@ When you query "What is the imc Learning Suite?", you'll get:
 - **KeyBERT**: Keyword extraction for semantic understanding
 - **SentenceTransformer** (`all-MiniLM-L6-v2`): Embedding generation
 - **OpenAI GPT**: Response generation and synthesis
-
-### Database Schema:
-- **Nodes**: Section hierarchy with rich metadata
-- **Relationships**: Multi-type connections with similarity scores
-- **Indexes**: Optimized for fast text and ID-based queries
-
-### Performance Features:
-- **Lazy Model Loading**: ML models loaded only when needed
-- **Configurable Thresholds**: Balance precision vs. recall
-- **Efficient Similarity**: Vectorized cosine similarity calculations
-- **Smart Caching**: Session state management for responsive UI
 
 ## 🔧 Configuration
 
