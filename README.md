@@ -139,3 +139,6 @@ streamlit run ui/visualize.py
 
 ### Customization:
 All thresholds and settings can be adjusted through the web interface or by modifying the configuration parameters in the code.
+
+## ➡️ Future TODOs
+- Support multiple documents ingestion and their connection 
