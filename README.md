@@ -17,13 +17,13 @@ The system extracts structured content from PDF documents, builds a semantic kno
   <br/>
   <em>Ingestion tab – upload & processing workflow</em>
   <br/><br/>
+  <img src="data/ref_imgs/query%20page%20-%20without%20answer.png" alt="Query Page – No Data" width="800"/>
+  <br/>
+  <em>Query tab – When user has not asked the query yet</em>
+  <br/><br/>
   <img src="data/ref_imgs/query%20page%20-%20with%20answer.png" alt="Query Page – Answer" width="800"/>
   <br/>
   <em>Query tab – example result with AI-generated answer and graph context</em>
-  <br/><br/>
-  <img src="data/ref_imgs/query%20page%20-%20without%20answer.png" alt="Query Page – No Data" width="800"/>
-  <br/>
-  <em>Query tab – user prompt when no data is available</em>
 </p>
 
 ## 🏗️ System Architecture
