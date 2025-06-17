@@ -210,28 +210,3 @@ When you query "What is the imc Learning Suite?", you'll get:
 
 ### Customization:
 All thresholds and settings can be adjusted through the web interface or by modifying the configuration parameters in the code.
-
-## 📈 Use Cases
-
-- **Technical Documentation**: Query complex software manuals
-- **Research Papers**: Explore academic content and citations
-- **Product Manuals**: Find specific features and procedures
-- **Policy Documents**: Navigate regulatory and compliance materials
-- **Educational Content**: Interactive learning from textbooks
-
-## 🤝 Contributing
-
-This project provides a foundation for document-based knowledge graphs. Contributions welcome for:
-- Additional document formats (Word, HTML, etc.)
-- Enhanced relationship types
-- Improved UI/UX features
-- Performance optimizations
-- Additional LLM integrations
-
-## 📝 License
-
-[Add your license information here]
-
----
-
-**Built with**: Python, Neo4j, Streamlit, OpenAI, SentenceTransformers, KeyBERT
