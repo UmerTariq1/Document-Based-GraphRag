@@ -22,18 +22,8 @@ The system extracts structured content from PDF documents, builds a semantic kno
 🖥️ Interactive Web Interface
 ```
 
-## 🔧 Core Components
+## 🔧 Graph Components
 
-### 1. PDF Processing (`parse_pdf.py`)
-- **Input**: PDF documents (e.g., technical documentation, manuals)
-- **Output**: Structured JSON with hierarchical content
-- **Features**: 
-  - Extracts text, titles, and section hierarchies
-  - Preserves document structure and page numbers
-  - Handles table of contents and subsections
-
-### 2. Graph Ingestion (`ingest.py`)
-Transforms JSON data into a rich Neo4j knowledge graph with:
 
 #### Node Types:
 - **Section** (Level 1): Main document sections
@@ -52,47 +42,32 @@ Transforms JSON data into a rich Neo4j knowledge graph with:
 - **`KEYWORD_MENTIONS`**: Connections based on shared keywords
 - **`SEMANTIC_SIMILAR_TO`**: Relationships based on embedding similarity
 
-### 3. Query Engine (`query.py`)
-Advanced GraphRAG query system featuring:
 
-#### Multi-Modal Search:
-- **Semantic Search**: Uses embeddings for content similarity
-- **Keyword Matching**: Identifies sections with matching terms
-- **Relationship Traversal**: Explores connected content
-
-#### AI Integration:
-- **OpenAI Integration**: Generates comprehensive responses using GPT models
-- **Context Assembly**: Combines main content with related sections
-- **Prompt Engineering**: Uses structured templates for optimal responses
-
-#### Intelligent Filtering:
-- Configurable similarity thresholds
-- Minimum keyword match requirements
-- Category-based result organization
-
-### 4. Web Interface (`visualize.py`)
+### 3. Web Interface (Streamlit application)
 Interactive Streamlit application providing:
 
 #### User Features:
 - **Natural Language Querying**: Ask questions in plain English
 - **Real-time Results**: Instant search with AI-generated responses
 - **Relationship Visualization**: See how content pieces connect
-- **Advanced Filtering**: Customize search parameters
+- **Advanced Search parameters**: Customize search parameters
 
 #### Configuration Options:
 - **Threshold Controls**: Adjust similarity and keyword matching requirements
 - **Result Sorting**: Order by keyword matches or similarity scores
 - **LLM Settings**: Choose models and response length
-- **Keyword Exclusion**: Filter out unwanted terms
+- **Keyword Exclusion**: Filter out unwanted terms which wont be used for keyword matching
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Python 3.11
+- libraries as mentioned in requirements.txt
 - Neo4j Database (running on `bolt://localhost:7687`)
 - OpenAI API Key (for AI responses)
 
-### Installation
+
+### Environment Setup
 
 1. **Clone the repository**:
 ```bash
@@ -106,8 +81,6 @@ python3.11 -m venv venv
 source venv/bin/activate
 ```
 
-
-
 3. **Install dependencies**:
 ```bash
 pip install -r requirements.txt
@@ -120,7 +93,7 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 ```
 
 4. **Start Neo4j database**:
-   - Install and start Neo4j
+   - Install and start Neo4j project and database
    - Default credentials: `neo4j/password`
    - Ensure it's running on `bolt://localhost:7687`
 
@@ -155,43 +128,9 @@ streamlit run ui/visualize.py
    - AI-generated response
    - Source content with relationships
    - Connected sections
-   - Graph visualization query
-
-#### Optional: Advanced Configuration
-- Adjust thresholds in the sidebar
-- Exclude specific keywords
-- Choose different AI models
-- Customize result sorting and filtering
-
-## 🎮 Using the Interface
+   - Graph visualization query which you can enter in the neo4j application to visualize the graph
 
 
-### Interface Features:
-
-#### ⚙️ Query Settings:
-- **Main Node Thresholds**: Control primary result requirements
-- **Connected Node Thresholds**: Filter related content
-- **Sorting Options**: Keyword matches vs. similarity scores
-- **Result Limits**: Control number of displayed results
-
-#### 🤖 AI Settings:
-- **Model Selection**: Choose from GPT-4o, GPT-4o-mini, GPT-3.5-turbo
-- **Response Length**: Customize AI response detail level
-- **Enable/Disable**: Toggle AI responses on/off
-
-#### 🔍 Advanced Features:
-- **Keyword Exclusion**: Filter out common or unwanted terms
-- **Relationship Details**: See exactly how content pieces connect
-- **Graph Visualization**: Generate Cypher queries for Neo4j Browser
-
-## 📊 Example Output
-
-When you query "What is the imc Learning Suite?", you'll get:
-
-1. **🤖 AI-Generated Response**: Comprehensive answer synthesized from multiple sources
-2. **📄 Source Section**: Primary matching content with similarity scores
-3. **📚 Connected Nodes**: Related sections with relationship explanations
-4. **🔍 Graph Visualization**: Cypher query to explore in Neo4j Browser
 
 ## 🛠️ Technical Details
 
