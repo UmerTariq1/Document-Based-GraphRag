@@ -5,7 +5,6 @@ GraphRAG Query Pipeline - Query the Neo4j graph using semantic search and relati
 
 from neo4j import GraphDatabase
 from typing import List, Dict
-from keybert import KeyBERT
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -13,9 +12,16 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 from pathlib import Path
+import spacy
+from typing import List
+from spacy.lang.en.stop_words import STOP_WORDS
+import re
 
 # Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+from utils.custom_logger import get_logger
+logging = get_logger()
 
 class GraphRAGQuery:
     def __init__(self, uri: str = "bolt://localhost:7687", username: str = "neo4j", password: str = "password"):
@@ -34,7 +40,7 @@ class GraphRAGQuery:
             print("✓ Connected to OpenAI")
         
         # Initialize ML models as None
-        self.keyword_model = None
+        self.nlp = None
         self.embedding_model = None
         self._models_initialized = False
     
@@ -42,7 +48,7 @@ class GraphRAGQuery:
         """Initialize ML models if they haven't been initialized yet."""
         if not self._models_initialized:
             print("🤖 Loading ML models...")
-            self.keyword_model = KeyBERT()
+            self.nlp = spacy.load("en_core_web_trf")  # Transformer-based NER and noun chunks
             self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
             self._models_initialized = True
             print("✓ ML models loaded")
@@ -52,17 +58,50 @@ class GraphRAGQuery:
         self.driver.close()
         print("✓ Connection closed")
     
-    def extract_keywords(self, text: str, top_n: int = 5) -> List[str]:
-        """Extract keywords from text using KeyBERT."""
+        
+    def clean_phrase(self, phrase: str) -> str:
+        tokens = [t for t in phrase.split() if t.lower() not in STOP_WORDS]
+        return " ".join(tokens)
+
+
+    def fix_hyphenated_linebreaks(self, text: str) -> str:
+        # Removes hyphen + newline (or hyphen + space + newline), joins word
+        text = re.sub(r'-\s*\n\s*', '', text)
+        # Optional: Replace newlines with space
+        text = re.sub(r'\n+', ' ', text)
+        return text
+
+    def extract_keywords(self, text: str) -> List[str]:
+
         self._initialize_models()
-        keywords = self.keyword_model.extract_keywords(
-            text,
-            keyphrase_ngram_range=(1, 2),
-            stop_words='english',
-            top_n=top_n
-        )
-        return [keyword for keyword, score in keywords]
-    
+        text = self.fix_hyphenated_linebreaks(text)
+        print("fix_hyphenated_linebreaks : text : " , text)
+        doc = self.nlp(text)
+        phrases = set()
+
+        # 1. Cleaned noun chunks
+        for chunk in doc.noun_chunks:
+            phrase = self.clean_phrase(chunk.text.strip()).lower()
+            if 1 <= len(phrase.split()) <= 5:
+                phrases.add(phrase)
+
+        print("phrases : " , phrases)
+        # 2. Cleaned verb + object phrases
+        for token in doc:
+            if token.pos_ == "VERB":
+                for child in token.children:
+                    if child.dep_ in {"dobj", "attr", "pobj"}:
+                        phrase = self.clean_phrase(f"{token.text} {child.text}")
+                        if 1 <= len(phrase.split()) <= 5:
+                            phrases.add(phrase)
+
+        print("phrases 2 : " , phrases)
+
+        x = list(set(sorted(p for p in phrases if p and not all(w.lower() in STOP_WORDS for w in p.split()))))
+
+        # lower case the keywords
+        x = [keyword.lower() for keyword in x]
+        return x        
     def get_query_embedding(self, query: str) -> np.ndarray:
         """Generate embedding for the query text."""
         self._initialize_models()
@@ -70,6 +109,9 @@ class GraphRAGQuery:
     
     def semantic_search(self, query: str, limit: int = 5) -> List[Dict]:
         """Perform semantic search using query embedding."""
+
+        self._initialize_models()
+
         query_embedding = self.get_query_embedding(query)
         
         with self.driver.session() as session:
@@ -121,6 +163,54 @@ class GraphRAGQuery:
             """, keywords=keywords, limit=limit)
             
             return [dict(record) for record in result]
+    
+    def keyword_match_search(self, query: str, limit: int = 30, excluded_keywords: List[str] = None) -> List[Dict]:
+        """Search nodes based on the number of keyword overlaps with the query (ties broken by cosine similarity)."""
+        # Extract query keywords and query embedding once
+        query_keywords = self.extract_keywords(query)
+        print("query_keywords : " , query_keywords)
+        query_embedding = self.get_query_embedding(query)
+
+        with self.driver.session() as session:
+            # Retrieve all nodes that have keywords and embeddings stored
+            result = session.run("""
+                MATCH (n)
+                WHERE n.keywords IS NOT NULL AND n.embedding IS NOT NULL
+                RETURN n.id as id, n.title as title, n.text as text, n.embedding as embedding,
+                       n.page_number as page_number, n.level as level, n.keywords as keywords
+            """)
+
+            nodes = []
+            for record in result:
+                node_keywords = record["keywords"] or []
+
+                # Calculate keyword matches between query and node
+                matching_keywords, keyword_count = self._calculate_keyword_matches(
+                    node_keywords,
+                    query_keywords,
+                    excluded_keywords
+                )
+
+                # Calculate cosine similarity for tie-breaking
+                node_embedding = np.array(record["embedding"])
+                similarity = cosine_similarity([query_embedding], [node_embedding])[0][0]
+
+                nodes.append({
+                    "id": record["id"],
+                    "title": record["title"],
+                    "text": record["text"],
+                    "similarity": similarity,
+                    "cosine_similarity": similarity,
+                    "page_number": record["page_number"],
+                    "level": record["level"],
+                    "keywords": node_keywords,
+                    "matching_keywords": matching_keywords,
+                    "keyword_match_count": keyword_count
+                })
+
+            # Sort primarily by keyword match count, then by similarity
+            nodes.sort(key=lambda x: (x["keyword_match_count"], x["cosine_similarity"]), reverse=True)
+            return nodes[:limit], query_keywords
     
     def get_related_content(self, node_id: str, relationship_type: str, depth: int = 1) -> List[Dict]:
         """Get related content based on relationship type and depth."""
@@ -278,21 +368,39 @@ class GraphRAGQuery:
                           connected_min_keyword_matches: int = 2, connected_similarity_threshold: float = 0.95,
                           filter_type: str = "Keyword Matches", max_results: int = 5, excluded_keywords: List[str] = None) -> Dict:
         """Get connected nodes based on semantic search and relationship traversal."""
-        # First, get semantically similar nodes
-        semantic_results = self.semantic_search(query, limit=1)
-        if not semantic_results:
-            return {"status": "error", "answer": "No relevant content found.", "context": []}
         
-        # Get the most similar node
-        main_node = semantic_results[0]
+        logging.info("--------------------------------")
+        print("Request arguments : ")
+        logging.info("User Query : " + query)
+        logging.info("main_min_keyword_matches : " + str(main_min_keyword_matches) + " main_similarity_threshold : " + str(main_similarity_threshold) + " connected_min_keyword_matches : " + str(connected_min_keyword_matches) + " connected_similarity_threshold : " + str(connected_similarity_threshold) + " filter_type : " + filter_type + " max_results : " + str(max_results) + " excluded_keywords : " + str(excluded_keywords))
+        logging.info("--------------------------------")
         
-        # Verify main node meets similarity threshold
-        if main_node['similarity'] < main_similarity_threshold:
-            return {"status": "error", "answer": "No content found matching the main node similarity threshold.", "context": []}
+        # Select main node candidates based on filter type
+        if filter_type == "Keyword Matches":
+            candidate_results, query_keywords = self.keyword_match_search(query, limit=30, excluded_keywords=excluded_keywords)
+        else:  # "Similarity Score" or any other value defaults to similarity search
+            candidate_results = self.semantic_search(query, limit=30)
+
+        if not candidate_results:
+            return {"status": "error", "answer": "No content found for the given query. Try lowering the threshold values.", "context": []}
+
+        for i in range(len(candidate_results)):
+            logging.info("candidate_results : " + str(candidate_results[i]['id']) + " --> " + str(candidate_results[i]['keyword_match_count']) + " --> " + str(candidate_results[i]['cosine_similarity']) + " --> " + str(candidate_results[i]['matching_keywords']))
         
-        # Extract keywords from query only
-        query_keywords = set(kw.lower() for kw in self.extract_keywords(query))
-        # print("query_keywords : " , query_keywords)
+        main_node = candidate_results[0]
+
+        # Verify main node against appropriate threshold
+        if filter_type == "Keyword Matches":
+            if main_node.get("keyword_match_count", 0) < main_min_keyword_matches:
+                return {"status": "error", "answer": "No content found matching the main node keyword threshold. Try lowering the threshold values.", "context": []}
+        else:  # Similarity threshold check
+            if main_node["similarity"] < main_similarity_threshold:
+                return {"status": "error", "answer": "No content found matching the main node similarity threshold. Try lowering the threshold values.", "context": []}
+
+        # get the query keywords
+        query_keywords = self.extract_keywords(query)
+        logging.info("query_keywords : " + str(query_keywords))
+
         # Get main node keywords from semantic search results
         main_node_keywords = main_node.get('keywords', [])
         # print("main_node_keywords : " , main_node_keywords)

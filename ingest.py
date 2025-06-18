@@ -42,7 +42,13 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from tqdm import tqdm
+from utils.custom_logger import get_logger
+import spacy
+from typing import List
+from spacy.lang.en.stop_words import STOP_WORDS
+import re
 
+logger = get_logger()
 class GraphRAGIngestion:
     def __init__(self, uri: str = "bolt://localhost:7687", username: str = "neo4j", password: str = "password"):
         """Initialize Neo4j connection and ML models."""
@@ -51,7 +57,7 @@ class GraphRAGIngestion:
         
         # Initialize ML models
         print("🤖 Loading ML models...")
-        self.keyword_model = KeyBERT()
+        self.nlp = spacy.load("en_core_web_trf")  # Transformer-based NER and noun chunks
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         print("✓ ML models loaded")
     
@@ -126,16 +132,43 @@ class GraphRAGIngestion:
             print(f"  • Word Count: {int(stats['avg_word_count'])} words")
             print(f"  • Keywords: {int(stats['avg_keywords'])} per node")
     
-    def extract_keywords(self, text: str, top_n: int = 5) -> List[str]:
-        """Extract keywords from text using KeyBERT."""
-        keywords = self.keyword_model.extract_keywords(
-            text,
-            keyphrase_ngram_range=(1, 2),
-            stop_words='english',
-            top_n=top_n
-        )
-        # print("Keywords : ", keywords)
-        return [keyword for keyword, score in keywords]
+    def clean_phrase(self, phrase: str) -> str:
+        tokens = [t for t in phrase.split() if t.lower() not in STOP_WORDS]
+        return " ".join(tokens)
+
+
+    def fix_hyphenated_linebreaks(self, text: str) -> str:
+        # Removes hyphen + newline (or hyphen + space + newline), joins word
+        text = re.sub(r'-\s*\n\s*', '', text)
+        # Optional: Replace newlines with space
+        text = re.sub(r'\n+', ' ', text)
+        return text
+
+    def extract_keywords(self, text: str) -> List[str]:
+        text = self.fix_hyphenated_linebreaks(text)
+        doc = self.nlp(text)
+        phrases = set()
+
+        # 1. Cleaned noun chunks
+        for chunk in doc.noun_chunks:
+            phrase = self.clean_phrase(chunk.text.strip()).lower()
+            if 1 <= len(phrase.split()) <= 5:
+                phrases.add(phrase)
+
+        # 2. Cleaned verb + object phrases
+        for token in doc:
+            if token.pos_ == "VERB":
+                for child in token.children:
+                    if child.dep_ in {"dobj", "attr", "pobj"}:
+                        phrase = self.clean_phrase(f"{token.text} {child.text}")
+                        if 1 <= len(phrase.split()) <= 5:
+                            phrases.add(phrase)
+
+        x = list(set(sorted(p for p in phrases if p and not all(w.lower() in STOP_WORDS for w in p.split()))))
+
+        # lower case the keywords
+        x = [keyword.lower() for keyword in x]
+        return x
     
     def create_section_nodes(self, sections: List[Dict]):
         """Create Section nodes in Neo4j with keywords and embeddings."""
@@ -155,7 +188,7 @@ class GraphRAGIngestion:
                     label = "SubSubSection"
                 
                 # Extract keywords
-                keywords = self.extract_keywords(section.get('text', ''))
+                keywords = self.extract_keywords(section.get('title', '') + " " + section.get('text', ''))
                 
                 # Generate embedding
                 embedding = self.embedding_model.encode(section.get('text', '')).tolist()
@@ -248,7 +281,7 @@ class GraphRAGIngestion:
         
         print(f"✓ Created {relationship_count} sibling relationships")
     
-    def create_mention_relationships(self, sections: List[Dict], min_keyword_matches: int = 1):
+    def create_mention_relationships(self, sections: List[Dict], min_keyword_matches: int = 2):
         """Create bidirectional KEYWORD_MENTIONS relationships based on keyword matches."""
         print("🔍 Creating keyword mention relationships...")
         
@@ -389,9 +422,13 @@ def main():
     
     try:
         # Run ingestion process
+        logger.info(f"Ingesting data from {JSON_FILE_PATH}")
         ingestion.ingest_data(JSON_FILE_PATH)
+
+        logger.info("✅ Ingestion completed successfully")
         
     except Exception as e:
+        logger.error(f"❌ Error during ingestion: {e}")
         print(f"❌ Error during ingestion: {e}")
     
     finally:

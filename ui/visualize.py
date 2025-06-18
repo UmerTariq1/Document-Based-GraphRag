@@ -4,9 +4,13 @@
 import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 
-
-import sys
+import sys, os
 import types
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from utils.custom_logger import get_logger
+logging = get_logger()
 
 # Patch torch.classes to prevent Streamlit from introspecting its __path__
 try:
@@ -557,7 +561,7 @@ def show_query_tab():
             
             main_similarity_threshold = st.slider(
                 "Main Node - Similarity Threshold",
-                min_value=0.60,
+                min_value=0.00,
                 max_value=1.0,
                 value=0.7,
                 step=0.01,
@@ -577,7 +581,7 @@ def show_query_tab():
             
             connected_similarity_threshold = st.slider(
                 "Connected Nodes - Similarity Threshold",
-                min_value=0.60,
+                min_value=0.00,
                 max_value=1.0,
                 value=0.7,
                 step=0.01,
@@ -735,6 +739,18 @@ def show_query_tab():
                 use_container_width=True,
                 on_click=_set_sample_query,
                 args=("How does the system support compliance-related training and certification, and what features ensure traceability and control throughout the process?",),
+            )
+            st.button(
+                "Can I customize certificates in the imc learning suite?",
+                use_container_width=True,
+                on_click=_set_sample_query,
+                args=("Can I customize certificates in the imc learning suite?",),
+            )
+            st.button(
+                "What languages are supported in the system?",
+                use_container_width=True,
+                on_click=_set_sample_query,
+                args=("What languages are supported in the system?",),
             )
             
         st.markdown("")
