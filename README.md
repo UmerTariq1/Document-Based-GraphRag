@@ -9,7 +9,7 @@ This project implements a complete pipeline for document understanding and intel
 1. **PDF Processing** → **Knowledge Graph Creation** → **Intelligent Querying** → **Interactive Visualization**
 
 The system extracts structured content from PDF documents, builds a semantic knowledge graph with multiple relationship types, and enables natural language querying with AI-powered responses.
-
+<!-- 
 ## 🖼️ Interface Preview
 
 <p align="center">
@@ -24,7 +24,7 @@ The system extracts structured content from PDF documents, builds a semantic kno
   <img src="data/ref_imgs/query%20page%20-%20with%20answer.png" alt="Query Page – Answer" width="800"/>
   <br/>
   <em>Query tab – example result with AI-generated answer and graph context</em>
-</p>
+</p> -->
 
 ## 🏗️ System Architecture
 
