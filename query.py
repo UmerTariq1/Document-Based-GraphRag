@@ -75,7 +75,6 @@ class GraphRAGQuery:
 
         self._initialize_models()
         text = self.fix_hyphenated_linebreaks(text)
-        print("fix_hyphenated_linebreaks : text : " , text)
         doc = self.nlp(text)
         phrases = set()
 
@@ -85,7 +84,6 @@ class GraphRAGQuery:
             if 1 <= len(phrase.split()) <= 5:
                 phrases.add(phrase)
 
-        print("phrases : " , phrases)
         # 2. Cleaned verb + object phrases
         for token in doc:
             if token.pos_ == "VERB":
@@ -95,7 +93,6 @@ class GraphRAGQuery:
                         if 1 <= len(phrase.split()) <= 5:
                             phrases.add(phrase)
 
-        print("phrases 2 : " , phrases)
 
         x = list(set(sorted(p for p in phrases if p and not all(w.lower() in STOP_WORDS for w in p.split()))))
 
@@ -105,7 +102,7 @@ class GraphRAGQuery:
     def get_query_embedding(self, query: str) -> np.ndarray:
         """Generate embedding for the query text."""
         self._initialize_models()
-        return self.embedding_model.encode(query)
+        return self.embedding_model.encode(query, show_progress_bar=False)
     
     def semantic_search(self, query: str, limit: int = 5) -> List[Dict]:
         """Perform semantic search using query embedding."""
@@ -168,7 +165,6 @@ class GraphRAGQuery:
         """Search nodes based on the number of keyword overlaps with the query (ties broken by cosine similarity)."""
         # Extract query keywords and query embedding once
         query_keywords = self.extract_keywords(query)
-        print("query_keywords : " , query_keywords)
         query_embedding = self.get_query_embedding(query)
 
         with self.driver.session() as session:
@@ -374,6 +370,7 @@ class GraphRAGQuery:
         logging.info("User Query : " + query)
         logging.info("main_min_keyword_matches : " + str(main_min_keyword_matches) + " main_similarity_threshold : " + str(main_similarity_threshold) + " connected_min_keyword_matches : " + str(connected_min_keyword_matches) + " connected_similarity_threshold : " + str(connected_similarity_threshold) + " filter_type : " + filter_type + " max_results : " + str(max_results) + " excluded_keywords : " + str(excluded_keywords))
         logging.info("--------------------------------")
+        print("Query Recieved : " + query)
         
         # Select main node candidates based on filter type
         if filter_type == "Keyword Matches":
@@ -427,7 +424,7 @@ class GraphRAGQuery:
         
         # Track seen nodes to avoid duplicates
         seen_ids = {main_node['id']}
-        
+
         # 1. Get parent content (always include if exists)
         parent_content = self.get_related_content(main_node['id'], 'PARENT', depth=1)
         for item in parent_content:
@@ -516,7 +513,6 @@ class GraphRAGQuery:
                 item_embedding = self.get_query_embedding(item['text'])
                 similarity = cosine_similarity([main_embedding], [item_embedding])[0][0]
                 item['cosine_similarity'] = float(similarity)
-                
                 # Get keyword match count
                 relationships = self.get_relationship_details(main_node['id'], item['id'], excluded_keywords)
                 max_keyword_matches = 0
@@ -569,6 +565,11 @@ class GraphRAGQuery:
         else:
             llm_response = "LLM response not available - OpenAI client not configured"
         
+        print("Status : Success")
+        print("Primary Node : " + main_node.get('id', 'N/A'))
+
+        print("--------------------------------")
+
         return {
             "status": "success",
             "id": main_node['id'],
