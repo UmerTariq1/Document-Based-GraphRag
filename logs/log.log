@@ -956,3 +956,5 @@
 2025-06-20 03:29:48 - INFO - query_keywords : ['languages', 'system']
 2025-06-20 03:29:53 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 2025-06-20 03:29:59 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 03:31:19 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 03:31:20 - INFO - Use pytorch device: cpu

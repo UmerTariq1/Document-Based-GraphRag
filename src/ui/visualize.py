@@ -810,7 +810,7 @@ def show_query_tab():
     # ------------------------------------------------------------------
     if st.session_state.awaiting_candidate_selection and st.session_state.candidate_list and st.session_state.selected_candidate_id is None:
         st.markdown("---")
-        st.markdown("## 🔍 Candidate Sections – choose the main answer")
+        st.markdown("## 🔍 Candidate Sections – choose the Section you think is most relevant")
         st.markdown("If you are not satisfied with the candidate sections, you can change the thresholds in the settings to get more sections.")
 
         for cand in st.session_state.candidate_list:
