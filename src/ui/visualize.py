@@ -10,6 +10,8 @@ import types
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.custom_logger import get_logger
+from utils.neo4j_utils import get_graph_stats
+
 logging = get_logger()
 
 # Patch torch.classes to prevent Streamlit from introspecting its __path__
@@ -70,6 +72,13 @@ def initialize_session_state():
         st.session_state.last_results = None
     if 'excluded_keywords' not in st.session_state:
         st.session_state.excluded_keywords = set()
+    # Interactive candidate selection state
+    if 'candidate_list' not in st.session_state:
+        st.session_state.candidate_list = None
+    if 'awaiting_candidate_selection' not in st.session_state:
+        st.session_state.awaiting_candidate_selection = False
+    if 'selected_candidate_id' not in st.session_state:
+        st.session_state.selected_candidate_id = None
 
 def convert_document_to_dict_list(document) -> List[Dict]:
     """Convert Document object to list of dictionaries for ingestion."""
@@ -90,28 +99,6 @@ def convert_document_to_dict_list(document) -> List[Dict]:
 # --------------------------------------------------
 # Utility: Fetch simple graph statistics (node & relationship counts)
 # --------------------------------------------------
-
-def get_graph_stats(driver):
-    """Return total counts of nodes and relationships from Neo4j.
-
-    Parameters
-    ----------
-    driver : neo4j.Driver
-        Active Neo4j driver instance.
-
-    Returns
-    -------
-    tuple[int, int]
-        (node_count, relationship_count). Returns (0, 0) on error.
-    """
-    try:
-        with driver.session() as session:
-            node_count = session.run("MATCH (n) RETURN count(n) AS count").single()["count"]
-            rel_count = session.run("MATCH ()-[r]->() RETURN count(r) AS count").single()["count"]
-        return node_count, rel_count
-    except Exception:
-        # Return zeros if Neo4j not reachable or query fails
-        return 0, 0
 
 def process_pdf_and_ingest(uploaded_file):
     """Process uploaded PDF and ingest into Neo4j in one seamless flow."""
@@ -363,49 +350,6 @@ def show_ingestion_tab():
             </div>
             """, unsafe_allow_html=True)
 
-def get_relationship_details(query_engine, main_node_id: str, related_node_id: str) -> dict:
-    """Get details about the relationship between two nodes."""
-    with query_engine.driver.session() as session:
-        # Get relationship details with direction
-        result = session.run("""
-            MATCH (n)-[r]-(m)
-            WHERE n.id = $main_id AND m.id = $related_id
-            RETURN type(r) as rel_type, r, 
-                   CASE 
-                       WHEN startNode(r) = n THEN 'outgoing'
-                       ELSE 'incoming'
-                   END as direction
-        """, main_id=main_node_id, related_id=related_node_id)
-        
-        relationships = []
-        for record in result:
-            rel_type = record['rel_type']
-            rel_props = dict(record['r'])
-            direction = record['direction']
-            
-            # For KEYWORD_MENTIONS, get the actual matching keywords
-            if rel_type == 'KEYWORD_MENTIONS':
-                # Get keywords from both nodes
-                keywords_result = session.run("""
-                    MATCH (n), (m)
-                    WHERE n.id = $main_id AND m.id = $related_id
-                    RETURN n.keywords as main_keywords, m.keywords as related_keywords
-                """, main_id=main_node_id, related_id=related_node_id)
-                
-                keywords_record = keywords_result.single()
-                if keywords_record:
-                    main_keywords = set(kw.lower() for kw in keywords_record['main_keywords'])
-                    related_keywords = set(kw.lower() for kw in keywords_record['related_keywords'])
-                    matching_keywords = main_keywords & related_keywords
-                    rel_props['matching_keywords'] = list(matching_keywords)
-            
-            relationships.append({
-                'type': rel_type,
-                'properties': rel_props,
-                'direction': direction
-            })
-        return relationships
-
 def display_results(results, query_engine):
     """Display query results in a structured way with custom styling."""
     # Wrap entire results in answer wrapper
@@ -457,7 +401,8 @@ def display_results(results, query_engine):
 
         for item in results['context']:
             try:
-                relationships = get_relationship_details(query_engine, results['id'], item['id'])
+                # Use the query engine's built-in helper to fetch relationship details
+                relationships = query_engine.get_relationship_details(results['id'], item['id'])
                 rel_descriptions = []
                 seen_details = set()  # Track seen relationship details to avoid duplicates
                 
@@ -549,10 +494,25 @@ def show_query_tab():
         with sidebar_container:
             st.markdown("### ⚙️ Query Settings")
             
+            # New slider – initial retrieval size
+            initial_retrieval_num = st.slider(
+                "Initial retrieval number of results",
+                min_value=1,
+                max_value=20,
+                value=1,
+                help="Number of top candidate sections to show before you pick the main answer"
+            )
+
+            filter_type = st.radio(
+                "Sort by / Select candidate section based on",
+                ["Keyword Matches", "Similarity Score"],
+                help="Choose how to sort the results"
+            )
+
             # Main node thresholds
-            st.markdown("**Main Node Thresholds:**")
+            st.markdown("**Initial Candidate Section Thresholds:**")
             main_min_keyword_matches = st.slider(
-                "Main Node - Minimum Keyword Matches",
+                "Initial Candidiate Node - Minimum Keyword Matches",
                 min_value=1,
                 max_value=10,
                 value=2,
@@ -560,7 +520,7 @@ def show_query_tab():
             )
             
             main_similarity_threshold = st.slider(
-                "Main Node - Similarity Threshold",
+                "Initial Candidiate Node - Similarity Threshold",
                 min_value=0.00,
                 max_value=1.0,
                 value=0.7,
@@ -588,11 +548,8 @@ def show_query_tab():
                 help="Minimum similarity score required for connected nodes"
             )
             
-            filter_type = st.radio(
-                "Sort by",
-                ["Keyword Matches", "Similarity Score"],
-                help="Choose how to sort the results"
-            )
+
+
             
             max_results = st.slider(
                 "Maximum Connected Nodes",
@@ -654,6 +611,9 @@ def show_query_tab():
             if st.button("Clear Results"):
                 st.session_state.last_query = None
                 st.session_state.last_results = None
+                st.session_state.candidate_list = None
+                st.session_state.awaiting_candidate_selection = False
+                st.session_state.selected_candidate_id = None
                 st.rerun()
     
     # Main query interface
@@ -667,9 +627,9 @@ def show_query_tab():
         </div>
         """, unsafe_allow_html=True)
     
-    # --------------------------------------------------
+    # ------------------------------------------------------------------
     # Data availability check – prevent queries when graph is empty
-    # --------------------------------------------------
+    # ------------------------------------------------------------------
     # We do this check once the header is rendered but before showing the
     # rest of the query UI.  If no nodes are present, we notify the user
     # and exit the function early.
@@ -758,54 +718,82 @@ def show_query_tab():
     # Search button
     if st.button("🔍 Search", type="primary"):
         if query:
-            with st.spinner("Searching and generating AI response... (if AI response parameter on the sidebar is enabled, it might take a while)"):
-                try:
-                    # Temporarily modify the query engine for this search if LLM is disabled
-                    if not enable_llm:
-                        # Store original client
-                        original_client = st.session_state.query_engine.openai_client
-                        st.session_state.query_engine.openai_client = None
-                    
-                    results = st.session_state.query_engine.get_connected_nodes(
-                        query,
-                        main_min_keyword_matches=main_min_keyword_matches,
-                        main_similarity_threshold=main_similarity_threshold,
-                        connected_min_keyword_matches=connected_min_keyword_matches,
-                        connected_similarity_threshold=connected_similarity_threshold,
-                        filter_type=filter_type,
-                        max_results=max_results,
-                        excluded_keywords=list(st.session_state.excluded_keywords)
-                    )
-                    
-                    # If LLM is enabled and we have a client, regenerate response with custom settings
-                    if enable_llm and st.session_state.query_engine.openai_client and results.get('status') == 'success':
-                        try:
-                            # Get the main node and context from results
-                            main_node = {
-                                'id': results['id'],
-                                'title': results['title'],
-                                'text': results['answer'],
-                                'page_number': results.get('page_number'),
-                                'level': results.get('level')
-                            }
-                            
-                            # Regenerate LLM response with custom settings
-                            prompt = st.session_state.query_engine._construct_prompt(query, main_node, results['context'])
-                            llm_response = st.session_state.query_engine._call_openai_api(prompt, model=llm_model, max_tokens=max_tokens)
-                            results['llm_response'] = llm_response
-                            results['prompt_used'] = prompt
-                        except Exception as llm_error:
-                            results['llm_response'] = f"Error generating custom LLM response: {str(llm_error)}"
-                    
-                    # Restore original client if it was temporarily disabled
-                    if not enable_llm:
-                        st.session_state.query_engine.openai_client = original_client
-                    
-                    st.session_state.last_query = query
-                    st.session_state.last_results = results
-                except Exception as e:
-                    st.error(f"Error during query: {e}")
-                    st.error("Please check if Neo4j is running and accessible.")
+            # Reset candidate selection state for a fresh search
+            st.session_state.candidate_list = None
+            st.session_state.awaiting_candidate_selection = False
+            st.session_state.selected_candidate_id = None
+            st.session_state.last_results = None
+            st.session_state.last_query = query
+
+            if initial_retrieval_num > 1:
+                with st.spinner("Retrieving candidate sections…"):
+                    try:
+                        raw_candidates = st.session_state.query_engine.get_top_candidates(
+                            query,
+                            limit=initial_retrieval_num,
+                            filter_type=filter_type,
+                            excluded_keywords=list(st.session_state.excluded_keywords)
+                        )
+
+                        # Apply main-node thresholds to candidate display list
+                        if filter_type == "Keyword Matches":
+                            filtered_candidates = [c for c in raw_candidates if c.get('keyword_match_count', 0) >= main_min_keyword_matches]
+                        else:  # Similarity Score
+                            filtered_candidates = [c for c in raw_candidates if c.get('similarity', 0) >= main_similarity_threshold]
+
+                        if not filtered_candidates:
+                            st.error("No candidates meet the specified main-node thresholds. Please relax the thresholds or reduce the initial retrieval number.")
+                            return
+
+                        st.session_state.candidate_list = filtered_candidates
+                        st.session_state.awaiting_candidate_selection = True
+                    except Exception as e:
+                        st.error(f"Error retrieving candidates: {e}")
+            else:
+                # Directly compute answer (single candidate flow)
+                with st.spinner("Finding the best matching sections..."):
+                    try:
+                        # Temporarily disable LLM if unchecked
+                        if not enable_llm:
+                            original_client = st.session_state.query_engine.openai_client
+                            st.session_state.query_engine.openai_client = None
+
+                        results = st.session_state.query_engine.get_connected_nodes(
+                            query,
+                            main_min_keyword_matches=main_min_keyword_matches,
+                            main_similarity_threshold=main_similarity_threshold,
+                            connected_min_keyword_matches=connected_min_keyword_matches,
+                            connected_similarity_threshold=connected_similarity_threshold,
+                            filter_type=filter_type,
+                            max_results=max_results,
+                            excluded_keywords=list(st.session_state.excluded_keywords),
+                            candidate_limit=initial_retrieval_num
+                        )
+
+                        # Optional LLM regeneration with custom settings
+                        if enable_llm and st.session_state.query_engine.openai_client and results.get('status') == 'success':
+                            try:
+                                main_node = {
+                                    'id': results['id'],
+                                    'title': results['title'],
+                                    'text': results['answer'],
+                                    'page_number': results.get('page_number'),
+                                    'level': results.get('level')
+                                }
+                                prompt = st.session_state.query_engine._construct_prompt(query, main_node, results['context'])
+                                llm_response = st.session_state.query_engine._call_openai_api(prompt, model=llm_model, max_tokens=max_tokens)
+                                results['llm_response'] = llm_response
+                                results['prompt_used'] = prompt
+                            except Exception as llm_error:
+                                results['llm_response'] = f"Error generating custom LLM response: {str(llm_error)}"
+
+                        if not enable_llm:
+                            st.session_state.query_engine.openai_client = original_client
+
+                        st.session_state.last_results = results
+                    except Exception as e:
+                        st.error(f"Error during query: {e}")
+                        st.error("Please check if Neo4j is running and accessible.")
         else:
             st.warning("Please enter a query.")
     
@@ -816,6 +804,98 @@ def show_query_tab():
             st.error(st.session_state.last_results['answer'])
         else:
             display_results(st.session_state.last_results, st.session_state.query_engine)
+
+    # ------------------------------------------------------------------
+    # Candidate selection step (when initial_retrieval_num > 1)
+    # ------------------------------------------------------------------
+    if st.session_state.awaiting_candidate_selection and st.session_state.candidate_list and st.session_state.selected_candidate_id is None:
+        st.markdown("---")
+        st.markdown("## 🔍 Candidate Sections – choose the main answer")
+        st.markdown("If you are not satisfied with the candidate sections, you can change the thresholds in the settings to get more sections.")
+
+        for cand in st.session_state.candidate_list:
+            # with st.expander(f"📄 {cand['title']} (ID: {cand['id']}, Page: {cand.get('page_number','N/A')})"):
+            with st.expander(f"📄 Section {cand['id']} - {cand['title']}, Page: {cand.get('page_number','N/A')}"):
+                st.markdown(f"**Keyword Matches:** {cand.get('keyword_match_count', 0)} , Similarity Score: {cand.get('similarity', 0)}")
+                preview_text = cand.get('text', '')
+                if len(preview_text) > 600:
+                    preview_text = preview_text[:600] + " …"
+                st.markdown(preview_text or "_No text available._")
+
+            # Place selection button outside the expander (no nesting)
+            if st.button(f"Select section {cand['id']}", key=f"select_{cand['id']}"):
+                st.session_state.selected_candidate_id = cand['id']
+                st.session_state.awaiting_candidate_selection = False
+                st.rerun()
+
+    # ------------------------------------------------------------------
+    # If a candidate has been chosen but no results calculated yet, run final retrieval
+    # ------------------------------------------------------------------
+    if st.session_state.selected_candidate_id and st.session_state.last_results is None:
+        with st.spinner("Generating answer from selected section…"):
+            try:
+                final_results = st.session_state.query_engine.get_connected_nodes(
+                    query,
+                    main_min_keyword_matches=main_min_keyword_matches,
+                    main_similarity_threshold=main_similarity_threshold,
+                    connected_min_keyword_matches=connected_min_keyword_matches,
+                    connected_similarity_threshold=connected_similarity_threshold,
+                    filter_type=filter_type,
+                    max_results=max_results,
+                    excluded_keywords=list(st.session_state.excluded_keywords),
+                    candidate_limit=initial_retrieval_num,
+                    preselected_main_node_id=st.session_state.selected_candidate_id
+                )
+
+                # Optionally regenerate LLM response
+                if enable_llm and st.session_state.query_engine.openai_client and final_results.get('status') == 'success':
+                    try:
+                        mn = {
+                            'id': final_results['id'],
+                            'title': final_results['title'],
+                            'text': final_results['answer'],
+                            'page_number': final_results.get('page_number'),
+                            'level': final_results.get('level')
+                        }
+                        prmpt = st.session_state.query_engine._construct_prompt(query, mn, final_results['context'])
+                        resp = st.session_state.query_engine._call_openai_api(prmpt, model=llm_model if enable_llm else "gpt-4o-mini", max_tokens=max_tokens if enable_llm else 1500)
+                        final_results['llm_response'] = resp
+                        final_results['prompt_used'] = prmpt
+                    except Exception as err:
+                        final_results['llm_response'] = f"Error generating custom LLM response: {err}"
+
+                # Immediately display the answer
+                if final_results.get('status') == 'error':
+                    st.error(final_results['answer'])
+                else:
+                    display_results(final_results, st.session_state.query_engine)
+
+                st.session_state.last_results = final_results
+            except Exception as fin_err:
+                st.error(f"Error generating final answer: {fin_err}")
+
+    # ------------------------------------------------------------------
+    # Offer re-selection of a different candidate after showing results
+    # ------------------------------------------------------------------
+    if st.session_state.candidate_list and st.session_state.selected_candidate_id and len(st.session_state.candidate_list) > 1:
+        st.markdown("---")
+        st.markdown("### 🔁 Did you want to select another candidate?")
+
+        for cand in st.session_state.candidate_list:
+            if cand['id'] == st.session_state.selected_candidate_id:
+                continue  # Skip currently selected one
+
+            # Preview inside expander (no nested buttons)
+            with st.expander(f"📄 Section {cand['id']} - {cand['title']}, Page: {cand.get('page_number','N/A')}"):
+                txt = cand.get('text', '')
+                if len(txt) > 600:
+                    txt = txt[:600] + " …"
+                st.markdown(txt or "_No text available._")
+
+            if st.button(f"Switch to section {cand['id']}", key=f"reselect_{cand['id']}"):
+                st.session_state.selected_candidate_id = cand['id']
+                st.session_state.last_results = None
+                st.rerun()
 
 def show_ingestion_sidebar():
     with st.sidebar:

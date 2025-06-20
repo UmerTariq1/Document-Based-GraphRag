@@ -527,3 +527,407 @@
 2025-06-20 01:00:23 - INFO - candidate_results : 10.4.7 --> 0 --> 0.47949584463272665 --> []
 2025-06-20 01:00:23 - INFO - candidate_results : 2 --> 0 --> 0.47743089863781235 --> []
 2025-06-20 01:00:23 - INFO - query_keywords : ['scorm', 'xapi', 'lti', 'learning content', 'qti', 'international standards']
+2025-06-20 01:15:15 - INFO - --------------------------------
+2025-06-20 01:15:15 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 01:15:15 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 01:15:15 - INFO - --------------------------------
+2025-06-20 01:15:17 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 01:15:18 - INFO - Use pytorch device: cpu
+2025-06-20 01:15:18 - INFO - candidate_results : 6.6 --> 2 --> 0.33144432975608545 --> ['imc learning suite', 'certificates']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.2 --> 1 --> 0.6613598697760688 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6428939401834325 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 5.1 --> 1 --> 0.5960834508758346 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 9.8 --> 1 --> 0.592267180674035 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5832817823020052 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.1 --> 1 --> 0.5818260902760146 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.2 --> 1 --> 0.5795938817331585 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 9 --> 1 --> 0.5789895578184069 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5788692218919016 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5712480174556956 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5696671465070413 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5536215906011854 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5518254675017307 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 9.1 --> 1 --> 0.5456102151770869 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 2.1 --> 1 --> 0.5438252887638495 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 6.9 --> 1 --> 0.5377761053680086 --> ['certificates']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.6 --> 1 --> 0.5284163208879231 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 10.4.1 --> 1 --> 0.5195014881069937 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.4 --> 1 --> 0.5095198175573816 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 2.4.1 --> 1 --> 0.5088109628648825 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.1 --> 1 --> 0.508740147629324 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.3.4 --> 1 --> 0.5073979524170472 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 6.1.1 --> 1 --> 0.5023533796409722 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 10.2.2 --> 1 --> 0.4964625084012262 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.4.7 --> 1 --> 0.4930353348359461 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.7 --> 1 --> 0.4917503428960173 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 1.5.9 --> 1 --> 0.48392152063705496 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 6.4.1 --> 1 --> 0.4810555463621804 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - candidate_results : 10.1.1 --> 1 --> 0.4800171431151288 --> ['imc learning suite']
+2025-06-20 01:15:18 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 01:15:27 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 01:15:31 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 01:15:44 - INFO - --------------------------------
+2025-06-20 01:15:44 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 01:15:44 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 01:15:44 - INFO - --------------------------------
+2025-06-20 01:15:44 - INFO - candidate_results : 6.6 --> 2 --> 0.33144432975608545 --> ['imc learning suite', 'certificates']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.2 --> 1 --> 0.6613598697760688 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6428939401834325 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 5.1 --> 1 --> 0.5960834508758346 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 9.8 --> 1 --> 0.592267180674035 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5832817823020052 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.1 --> 1 --> 0.5818260902760146 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.2 --> 1 --> 0.5795938817331585 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 9 --> 1 --> 0.5789895578184069 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5788692218919016 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5712480174556956 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5696671465070413 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5536215906011854 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5518254675017307 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 9.1 --> 1 --> 0.5456102151770869 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 2.1 --> 1 --> 0.5438252887638495 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 6.9 --> 1 --> 0.5377761053680086 --> ['certificates']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.6 --> 1 --> 0.5284163208879231 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 10.4.1 --> 1 --> 0.5195014881069937 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.4 --> 1 --> 0.5095198175573816 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 2.4.1 --> 1 --> 0.5088109628648825 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.1 --> 1 --> 0.508740147629324 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.3.4 --> 1 --> 0.5073979524170472 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 6.1.1 --> 1 --> 0.5023533796409722 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 10.2.2 --> 1 --> 0.4964625084012262 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.4.7 --> 1 --> 0.4930353348359461 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.7 --> 1 --> 0.4917503428960173 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 1.5.9 --> 1 --> 0.48392152063705496 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 6.4.1 --> 1 --> 0.4810555463621804 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - candidate_results : 10.1.1 --> 1 --> 0.4800171431151288 --> ['imc learning suite']
+2025-06-20 01:15:44 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 01:25:32 - INFO - --------------------------------
+2025-06-20 01:25:32 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 01:25:32 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 01:25:32 - INFO - --------------------------------
+2025-06-20 01:25:34 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 01:25:35 - INFO - Use pytorch device: cpu
+2025-06-20 01:25:36 - INFO - candidate_results : 6.6 --> 2 --> 0.33144432975608545 --> ['imc learning suite', 'certificates']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.2 --> 1 --> 0.6613598697760688 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6428939401834325 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 5.1 --> 1 --> 0.5960834508758346 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 9.8 --> 1 --> 0.592267180674035 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5832817823020052 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.1 --> 1 --> 0.5818260902760146 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.2 --> 1 --> 0.5795938817331585 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 9 --> 1 --> 0.5789895578184069 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5788692218919016 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5712480174556956 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5696671465070413 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5536215906011854 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5518254675017307 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 9.1 --> 1 --> 0.5456102151770869 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 2.1 --> 1 --> 0.5438252887638495 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 6.9 --> 1 --> 0.5377761053680086 --> ['certificates']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.6 --> 1 --> 0.5284163208879231 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 10.4.1 --> 1 --> 0.5195014881069937 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.4 --> 1 --> 0.5095198175573816 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 2.4.1 --> 1 --> 0.5088109628648825 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.1 --> 1 --> 0.508740147629324 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.3.4 --> 1 --> 0.5073979524170472 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 6.1.1 --> 1 --> 0.5023533796409722 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 10.2.2 --> 1 --> 0.4964625084012262 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.4.7 --> 1 --> 0.4930353348359461 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.7 --> 1 --> 0.4917503428960173 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 1.5.9 --> 1 --> 0.48392152063705496 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 6.4.1 --> 1 --> 0.4810555463621804 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - candidate_results : 10.1.1 --> 1 --> 0.4800171431151288 --> ['imc learning suite']
+2025-06-20 01:25:36 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 01:44:07 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 01:44:08 - INFO - Use pytorch device: cpu
+2025-06-20 01:49:00 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 01:49:00 - INFO - Use pytorch device: cpu
+2025-06-20 01:51:43 - INFO - --------------------------------
+2025-06-20 01:51:43 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 01:51:43 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 01:51:43 - INFO - --------------------------------
+2025-06-20 01:51:45 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 01:51:46 - INFO - Use pytorch device: cpu
+2025-06-20 01:51:47 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['imc learning suite', 'certificates']
+2025-06-20 01:51:47 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5797818911101659 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5599480506265853 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 9.8 --> 1 --> 0.5557644388727881 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 5.1 --> 1 --> 0.5492728096375742 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 6.9 --> 1 --> 0.5473984531105408 --> ['certificates']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5433652189295897 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 9 --> 1 --> 0.5304118759046796 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5262140554014497 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5237408120672605 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 9.1 --> 1 --> 0.5188256235831823 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5178118610195601 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 10.4.1 --> 1 --> 0.49962140943946776 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.5.6 --> 1 --> 0.49786666317538963 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.5.1 --> 1 --> 0.48243970675560166 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 2.4.1 --> 1 --> 0.4821980910242982 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.5.9 --> 1 --> 0.4801758458913665 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 10.4 --> 1 --> 0.4716368728414352 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.4.7 --> 1 --> 0.46548054786711696 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 1.5.7 --> 1 --> 0.46103923370482147 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 6.4.1 --> 1 --> 0.4596218460824698 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 6.1.1 --> 1 --> 0.4535593717147912 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 7 --> 1 --> 0.45074628029239266 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - candidate_results : 10.4.8 --> 1 --> 0.4434337839160666 --> ['imc learning suite']
+2025-06-20 01:51:47 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:06:30 - INFO - --------------------------------
+2025-06-20 02:06:30 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:06:30 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:06:30 - INFO - --------------------------------
+2025-06-20 02:06:32 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:06:33 - INFO - Use pytorch device: cpu
+2025-06-20 02:06:34 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['imc learning suite', 'certificates']
+2025-06-20 02:06:34 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:06:41 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:06:44 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:07:44 - INFO - --------------------------------
+2025-06-20 02:07:44 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:07:44 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:07:44 - INFO - --------------------------------
+2025-06-20 02:07:47 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:07:48 - INFO - Use pytorch device: cpu
+2025-06-20 02:07:48 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:07:48 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:10:50 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:10:51 - INFO - Use pytorch device: cpu
+2025-06-20 02:10:57 - INFO - --------------------------------
+2025-06-20 02:10:57 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:10:57 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:10:57 - INFO - --------------------------------
+2025-06-20 02:10:57 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5797818911101659 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5599480506265853 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 9.8 --> 1 --> 0.5557644388727881 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 5.1 --> 1 --> 0.5492728096375742 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 6.9 --> 1 --> 0.5473984531105408 --> ['certificates']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5433652189295897 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 9 --> 1 --> 0.5304118759046796 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5262140554014497 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5237408120672605 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 9.1 --> 1 --> 0.5188256235831823 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5178118610195601 --> ['imc learning suite']
+2025-06-20 02:10:57 - INFO - candidate_results : 10.4.1 --> 1 --> 0.49962140943946776 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - --------------------------------
+2025-06-20 02:11:39 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:11:39 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.24 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:11:39 - INFO - --------------------------------
+2025-06-20 02:11:39 - INFO - --------------------------------
+2025-06-20 02:11:39 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:11:39 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.24 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:11:39 - INFO - --------------------------------
+2025-06-20 02:11:39 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5797818911101659 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5599480506265853 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9.8 --> 1 --> 0.5557644388727881 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 5.1 --> 1 --> 0.5492728096375742 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 6.9 --> 1 --> 0.5473984531105408 --> ['certificates']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5433652189295897 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9 --> 1 --> 0.5304118759046796 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5262140554014497 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5237408120672605 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9.1 --> 1 --> 0.5188256235831823 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5178118610195601 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 10.4.1 --> 1 --> 0.49962140943946776 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5797818911101659 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5599480506265853 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9.8 --> 1 --> 0.5557644388727881 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 5.1 --> 1 --> 0.5492728096375742 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 6.9 --> 1 --> 0.5473984531105408 --> ['certificates']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5433652189295897 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9 --> 1 --> 0.5304118759046796 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5262140554014497 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5237408120672605 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 9.1 --> 1 --> 0.5188256235831823 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5178118610195601 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - candidate_results : 10.4.1 --> 1 --> 0.49962140943946776 --> ['imc learning suite']
+2025-06-20 02:11:39 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:11:42 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:11:42 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:14:31 - INFO - --------------------------------
+2025-06-20 02:14:31 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:14:31 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.24 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:14:31 - INFO - --------------------------------
+2025-06-20 02:14:33 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5797818911101659 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5599480506265853 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 9.8 --> 1 --> 0.5557644388727881 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 5.1 --> 1 --> 0.5492728096375742 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 6.9 --> 1 --> 0.5473984531105408 --> ['certificates']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5433652189295897 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 9 --> 1 --> 0.5304118759046796 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5262140554014497 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.4.1 --> 1 --> 0.5237408120672605 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 9.1 --> 1 --> 0.5188256235831823 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 1.5.11 --> 1 --> 0.5178118610195601 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - candidate_results : 10.4.1 --> 1 --> 0.49962140943946776 --> ['imc learning suite']
+2025-06-20 02:14:33 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:14:40 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:17:36 - INFO - --------------------------------
+2025-06-20 02:17:36 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:17:36 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:17:36 - INFO - --------------------------------
+2025-06-20 02:17:38 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:17:39 - INFO - Use pytorch device: cpu
+2025-06-20 02:17:40 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:17:47 - INFO - --------------------------------
+2025-06-20 02:17:47 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:17:47 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:17:47 - INFO - --------------------------------
+2025-06-20 02:17:47 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:17:47 - INFO - query_keywords : ['imc learning suite']
+2025-06-20 02:17:52 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:17:57 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:18:45 - INFO - --------------------------------
+2025-06-20 02:18:45 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:18:45 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:18:45 - INFO - --------------------------------
+2025-06-20 02:18:48 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:18:49 - INFO - Use pytorch device: cpu
+2025-06-20 02:18:49 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:18:55 - INFO - --------------------------------
+2025-06-20 02:18:55 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:18:55 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:18:55 - INFO - --------------------------------
+2025-06-20 02:18:56 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:18:56 - INFO - query_keywords : ['imc learning suite']
+2025-06-20 02:24:13 - INFO - --------------------------------
+2025-06-20 02:24:13 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:24:13 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:24:13 - INFO - --------------------------------
+2025-06-20 02:24:14 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:24:30 - INFO - --------------------------------
+2025-06-20 02:24:30 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:24:30 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:24:30 - INFO - --------------------------------
+2025-06-20 02:24:30 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:26:35 - INFO - --------------------------------
+2025-06-20 02:26:35 - INFO - User Query : What is the imc Learning Suite?
+2025-06-20 02:26:35 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:26:35 - INFO - --------------------------------
+2025-06-20 02:26:37 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:26:38 - INFO - Use pytorch device: cpu
+2025-06-20 02:26:39 - INFO - candidate_results : 1 --> 1 --> 0.9090788086081185 --> ['imc learning suite']
+2025-06-20 02:27:52 - INFO - --------------------------------
+2025-06-20 02:27:52 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:27:52 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:27:52 - INFO - --------------------------------
+2025-06-20 02:27:52 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:27:52 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:27:58 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:28:01 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:31:29 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:31:29 - INFO - Use pytorch device: cpu
+2025-06-20 02:31:42 - INFO - --------------------------------
+2025-06-20 02:31:42 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:31:42 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:31:42 - INFO - --------------------------------
+2025-06-20 02:31:43 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 10.3.2 --> 1 --> 0.5797818911101659 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 6.5.9 --> 1 --> 0.5599480506265853 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 9.8 --> 1 --> 0.5557644388727881 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 5.1 --> 1 --> 0.5492728096375742 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 6.9 --> 1 --> 0.5473984531105408 --> ['certificates']
+2025-06-20 02:31:43 - INFO - candidate_results : 1.3.5 --> 1 --> 0.5433652189295897 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 9 --> 1 --> 0.5304118759046796 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - candidate_results : 1.4.6 --> 1 --> 0.5262140554014497 --> ['imc learning suite']
+2025-06-20 02:31:43 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:31:48 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:31:52 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:33:16 - INFO - --------------------------------
+2025-06-20 02:33:16 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:33:16 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:33:16 - INFO - --------------------------------
+2025-06-20 02:33:17 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:33:17 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:33:24 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:33:29 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:35:23 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:35:24 - INFO - Use pytorch device: cpu
+2025-06-20 02:35:54 - INFO - --------------------------------
+2025-06-20 02:35:54 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:35:54 - INFO - main_min_keyword_matches : 2 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:35:54 - INFO - --------------------------------
+2025-06-20 02:35:55 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:35:55 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:35:55 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:36:03 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:36:07 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:36:30 - INFO - --------------------------------
+2025-06-20 02:36:30 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:36:30 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:36:30 - INFO - --------------------------------
+2025-06-20 02:36:31 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:36:31 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:36:31 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:36:31 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:36:31 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:36:31 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:36:31 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:36:31 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:36:35 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:36:43 - INFO - --------------------------------
+2025-06-20 02:36:43 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:36:43 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:36:43 - INFO - --------------------------------
+2025-06-20 02:36:44 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['certificates', 'imc learning suite']
+2025-06-20 02:36:44 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:36:44 - INFO - candidate_results : 9.8.1 --> 1 --> 0.6030599714409647 --> ['imc learning suite']
+2025-06-20 02:36:44 - INFO - candidate_results : 1.1 --> 1 --> 0.5893414110761812 --> ['imc learning suite']
+2025-06-20 02:36:44 - INFO - candidate_results : 1.5.2 --> 1 --> 0.5886085625292451 --> ['imc learning suite']
+2025-06-20 02:36:44 - INFO - candidate_results : 1.2 --> 1 --> 0.5848271447148001 --> ['imc learning suite']
+2025-06-20 02:36:44 - INFO - candidate_results : 2.1 --> 1 --> 0.583750355216491 --> ['imc learning suite']
+2025-06-20 02:36:44 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:36:51 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:42:04 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:42:04 - INFO - Use pytorch device: cpu
+2025-06-20 02:42:11 - INFO - --------------------------------
+2025-06-20 02:42:11 - INFO - User Query : Can I customize certificates in the imc learning suite?
+2025-06-20 02:42:11 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 02:42:11 - INFO - --------------------------------
+2025-06-20 02:42:11 - INFO - candidate_results : 6.6 --> 2 --> 0.34184040579757435 --> ['imc learning suite', 'certificates']
+2025-06-20 02:42:11 - INFO - candidate_results : 1 --> 1 --> 0.6216029929669882 --> ['imc learning suite']
+2025-06-20 02:42:12 - INFO - query_keywords : ['certificates', 'customize certificates', 'imc learning suite']
+2025-06-20 02:42:18 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-20 02:45:20 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 02:45:20 - INFO - Use pytorch device: cpu

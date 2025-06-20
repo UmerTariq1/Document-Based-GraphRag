@@ -5,17 +5,13 @@ GraphRAG Query Pipeline - Query the Neo4j graph using semantic search and relati
 
 from neo4j import GraphDatabase
 from typing import List, Dict
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import os
-from dotenv import load_dotenv
-from openai import OpenAI
+from utils.openai_utils import get_openai_client, call_chat_completion
 from pathlib import Path
-import spacy
-from typing import List
-from spacy.lang.en.stop_words import STOP_WORDS
-import re
+from utils.text_processing import extract_keywords, calculate_keyword_matches
+from utils.ml_models import get_spacy_model, get_embedding_model
 
 # Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -29,17 +25,14 @@ class GraphRAGQuery:
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
         print("✓ Connected to Neo4j")
         
-        # Initialize OpenAI client
-        load_dotenv()
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            print("⚠️ Warning: OPENAI_API_KEY not found in environment variables")
-            self.openai_client = None
-        else:
-            self.openai_client = OpenAI(api_key=api_key)
+        # Initialize OpenAI client using shared helper
+        self.openai_client = get_openai_client()
+        if self.openai_client:
             print("✓ Connected to OpenAI")
+        else:
+            print("⚠️ Warning: OPENAI_API_KEY not found in environment variables")
         
-        # Initialize ML models as None
+        # ML models will be obtained via shared cached loaders when needed
         self.nlp = None
         self.embedding_model = None
         self._models_initialized = False
@@ -48,8 +41,8 @@ class GraphRAGQuery:
         """Initialize ML models if they haven't been initialized yet."""
         if not self._models_initialized:
             print("🤖 Loading ML models...")
-            self.nlp = spacy.load("en_core_web_trf")  # Transformer-based NER and noun chunks
-            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            self.nlp = get_spacy_model()
+            self.embedding_model = get_embedding_model()
             self._models_initialized = True
             print("✓ ML models loaded")
     
@@ -58,47 +51,6 @@ class GraphRAGQuery:
         self.driver.close()
         print("✓ Connection closed")
     
-        
-    def clean_phrase(self, phrase: str) -> str:
-        tokens = [t for t in phrase.split() if t.lower() not in STOP_WORDS]
-        return " ".join(tokens)
-
-
-    def fix_hyphenated_linebreaks(self, text: str) -> str:
-        # Removes hyphen + newline (or hyphen + space + newline), joins word
-        text = re.sub(r'-\s*\n\s*', '', text)
-        # Optional: Replace newlines with space
-        text = re.sub(r'\n+', ' ', text)
-        return text
-
-    def extract_keywords(self, text: str) -> List[str]:
-
-        self._initialize_models()
-        text = self.fix_hyphenated_linebreaks(text)
-        doc = self.nlp(text)
-        phrases = set()
-
-        # 1. Cleaned noun chunks
-        for chunk in doc.noun_chunks:
-            phrase = self.clean_phrase(chunk.text.strip()).lower()
-            if 1 <= len(phrase.split()) <= 5:
-                phrases.add(phrase)
-
-        # 2. Cleaned verb + object phrases
-        for token in doc:
-            if token.pos_ == "VERB":
-                for child in token.children:
-                    if child.dep_ in {"dobj", "attr", "pobj"}:
-                        phrase = self.clean_phrase(f"{token.text} {child.text}")
-                        if 1 <= len(phrase.split()) <= 5:
-                            phrases.add(phrase)
-
-
-        x = list(set(sorted(p for p in phrases if p and not all(w.lower() in STOP_WORDS for w in p.split()))))
-
-        # lower case the keywords
-        x = [keyword.lower() for keyword in x]
-        return x        
     def get_query_embedding(self, query: str) -> np.ndarray:
         """Generate embedding for the query text."""
         self._initialize_models()
@@ -148,7 +100,7 @@ class GraphRAGQuery:
     
     def keyword_search(self, query: str, limit: int = 5) -> List[Dict]:
         """Search using extracted keywords."""
-        keywords = self.extract_keywords(query)
+        keywords = extract_keywords(query)
         
         with self.driver.session() as session:
             result = session.run("""
@@ -164,7 +116,7 @@ class GraphRAGQuery:
     def keyword_match_search(self, query: str, limit: int = 30, excluded_keywords: List[str] = None) -> List[Dict]:
         """Search nodes based on the number of keyword overlaps with the query (ties broken by cosine similarity)."""
         # Extract query keywords and query embedding once
-        query_keywords = self.extract_keywords(query)
+        query_keywords = extract_keywords(query)
         query_embedding = self.get_query_embedding(query)
 
         with self.driver.session() as session:
@@ -181,7 +133,7 @@ class GraphRAGQuery:
                 node_keywords = record["keywords"] or []
 
                 # Calculate keyword matches between query and node
-                matching_keywords, keyword_count = self._calculate_keyword_matches(
+                matching_keywords, keyword_count = calculate_keyword_matches(
                     node_keywords,
                     query_keywords,
                     excluded_keywords
@@ -222,21 +174,6 @@ class GraphRAGQuery:
             
             return [dict(record) for record in result]
     
-    def _calculate_keyword_matches(self, main_keywords: List[str], related_keywords: List[str], excluded_keywords: List[str] = None) -> tuple:
-        """Calculate matching keywords and count between two nodes after filtering excluded keywords."""
-        # Convert to lowercase sets
-        main_keywords_set = set(kw.lower() for kw in main_keywords)
-        related_keywords_set = set(kw.lower() for kw in related_keywords)
-        
-        # Remove excluded keywords from main node keywords
-        if excluded_keywords:
-            excluded_keywords_lower = set(kw.lower() for kw in excluded_keywords)
-            main_keywords_set = main_keywords_set - excluded_keywords_lower
-        
-        # Find matching keywords
-        matching_keywords = list(main_keywords_set & related_keywords_set)
-        return matching_keywords, len(matching_keywords)
-
     def get_relationship_details(self, main_node_id: str, related_node_id: str, excluded_keywords: List[str] = None) -> List[Dict]:
         """Get details about the relationship between two nodes."""
         with self.driver.session() as session:
@@ -260,7 +197,7 @@ class GraphRAGQuery:
                 direction = record['direction']
                 
                 # Calculate keyword matches for all relationship types
-                matching_keywords, keyword_count = self._calculate_keyword_matches(
+                matching_keywords, keyword_count = calculate_keyword_matches(
                     record['main_keywords'],
                     record['related_keywords'],
                     excluded_keywords
@@ -278,7 +215,8 @@ class GraphRAGQuery:
     def _load_prompt_template(self) -> str:
         """Load the prompt template from file."""
         try:
-            template_path = Path(__file__).parent / "prompt_template.txt"
+            template_path = Path(__file__).parent.parent / "data/prompt_template.txt"
+            print("template_path : " , template_path)
             with open(template_path, 'r', encoding='utf-8') as f:
                 return f.read()
         except FileNotFoundError:
@@ -346,23 +284,28 @@ class GraphRAGQuery:
             return "OpenAI client not available. Please check your API key configuration."
         
         try:
-            response = self.openai_client.chat.completions.create(
+            # Delegate to shared utility which already handles errors
+            return call_chat_completion(
+                self.openai_client,
+                prompt,
                 model=model,
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant that provides comprehensive answers based on document content."},
-                    {"role": "user", "content": prompt}
-                ],
                 max_tokens=max_tokens,
-                temperature=0.7
+                temperature=0.7,
             )
-            return response.choices[0].message.content
         except Exception as e:
-            print(f"Error calling OpenAI API: {e}")
+            print(f"Error generating LLM response: {e}")
             return f"Error generating LLM response: {str(e)}"
 
-    def get_connected_nodes(self, query: str, main_min_keyword_matches: int = 2, main_similarity_threshold: float = 0.95,
-                          connected_min_keyword_matches: int = 2, connected_similarity_threshold: float = 0.95,
-                          filter_type: str = "Keyword Matches", max_results: int = 5, excluded_keywords: List[str] = None) -> Dict:
+    def get_connected_nodes(self, query: str,
+                          main_min_keyword_matches: int = 2,
+                          main_similarity_threshold: float = 0.95,
+                          connected_min_keyword_matches: int = 2,
+                          connected_similarity_threshold: float = 0.95,
+                          filter_type: str = "Keyword Matches",
+                          max_results: int = 5,
+                          excluded_keywords: List[str] = None,
+                          candidate_limit: int = 30,
+                          preselected_main_node_id: str = None) -> Dict:
         """Get connected nodes based on semantic search and relationship traversal."""
         
         logging.info("--------------------------------")
@@ -374,9 +317,9 @@ class GraphRAGQuery:
         
         # Select main node candidates based on filter type
         if filter_type == "Keyword Matches":
-            candidate_results, query_keywords = self.keyword_match_search(query, limit=30, excluded_keywords=excluded_keywords)
+            candidate_results, query_keywords = self.keyword_match_search(query, limit=candidate_limit, excluded_keywords=excluded_keywords)
         else:  # "Similarity Score" or any other value defaults to similarity search
-            candidate_results = self.semantic_search(query, limit=30)
+            candidate_results = self.semantic_search(query, limit=candidate_limit)
 
         if not candidate_results:
             return {"status": "error", "answer": "No content found for the given query. Try lowering the threshold values.", "context": []}
@@ -384,7 +327,13 @@ class GraphRAGQuery:
         for i in range(len(candidate_results)):
             logging.info("candidate_results : " + str(candidate_results[i]['id']) + " --> " + str(candidate_results[i]['keyword_match_count']) + " --> " + str(candidate_results[i]['cosine_similarity']) + " --> " + str(candidate_results[i]['matching_keywords']))
         
-        main_node = candidate_results[0]
+        if preselected_main_node_id:
+            main_node = next((c for c in candidate_results if c['id'] == preselected_main_node_id), None)
+            # Fallback to the first candidate if the provided id is not in the list
+            if main_node is None and candidate_results:
+                main_node = candidate_results[0]
+        else:
+            main_node = candidate_results[0]
 
         # Verify main node against appropriate threshold
         if filter_type == "Keyword Matches":
@@ -395,7 +344,7 @@ class GraphRAGQuery:
                 return {"status": "error", "answer": "No content found matching the main node similarity threshold. Try lowering the threshold values.", "context": []}
 
         # get the query keywords
-        query_keywords = self.extract_keywords(query)
+        query_keywords = extract_keywords(query)
         logging.info("query_keywords : " + str(query_keywords))
 
         # Get main node keywords from semantic search results
@@ -403,7 +352,7 @@ class GraphRAGQuery:
         # print("main_node_keywords : " , main_node_keywords)
         
         # Calculate matching keywords
-        matching_keywords, keyword_count = self._calculate_keyword_matches(
+        matching_keywords, keyword_count = calculate_keyword_matches(
             main_node_keywords,
             list(query_keywords),  # Convert set to list for consistency
             excluded_keywords
@@ -587,6 +536,15 @@ class GraphRAGQuery:
             "llm_response": llm_response,
             "prompt_used": self._construct_prompt(query, main_node, all_context) if self.openai_client else None
         }
+
+    def get_top_candidates(self, query: str, limit: int = 5, filter_type: str = "Keyword Matches", excluded_keywords: List[str] = None) -> List[Dict]:
+        """Return the top-`limit` candidate sections for a query without any additional processing.
+        This is a lightweight helper used by the Streamlit UI for interactive main-node selection."""
+        if filter_type == "Keyword Matches":
+            candidates, _ = self.keyword_match_search(query, limit=limit, excluded_keywords=excluded_keywords)
+        else:
+            candidates = self.semantic_search(query, limit=limit)
+        return candidates
 
 if __name__ == "__main__":
     pass

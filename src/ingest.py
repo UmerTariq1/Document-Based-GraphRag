@@ -37,16 +37,13 @@ Only created when similarity exceeds threshold (default 0.85)
 import json
 from neo4j import GraphDatabase
 from typing import List, Dict
-from keybert import KeyBERT
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from tqdm import tqdm
 from utils.custom_logger import get_logger
-import spacy
-from typing import List
-from spacy.lang.en.stop_words import STOP_WORDS
-import re
+from utils.text_processing import extract_keywords
+from utils.ml_models import get_embedding_model
+from utils.neo4j_utils import clear_database as util_clear_db, create_basic_indexes
 
 logger = get_logger()
 class GraphRAGIngestion:
@@ -55,10 +52,9 @@ class GraphRAGIngestion:
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
         print("✓ Connected to Neo4j")
         
-        # Initialize ML models
+        # Initialise ML models using the shared cached loaders
         print("🤖 Loading ML models...")
-        self.nlp = spacy.load("en_core_web_trf")  # Transformer-based NER and noun chunks
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.embedding_model = get_embedding_model()
         print("✓ ML models loaded")
     
     def close(self):
@@ -67,22 +63,15 @@ class GraphRAGIngestion:
         print("✓ Connection closed")
     
     def clear_database(self):
-        """Clear all existing data."""
+        """Clear all existing data (delegates to utils.neo4j_utils)."""
         print("🧹 Clearing database...")
-        with self.driver.session() as session:
-            session.run("MATCH (n) DETACH DELETE n")
+        util_clear_db(self.driver)
         print("✓ Database cleared")
     
     def create_indexes(self):
-        """Create indexes for better query performance."""
+        """Create indexes for better query performance (delegates)."""
         print("🔍 Creating indexes...")
-        with self.driver.session() as session:
-            # Create indexes for each section type
-            for label in ["Section", "SubSection", "SubSubSection"]:
-                session.run(f"CREATE INDEX {label.lower()}_id_index IF NOT EXISTS FOR (s:{label}) ON (s.id)")
-                session.run(f"CREATE INDEX {label.lower()}_level_index IF NOT EXISTS FOR (s:{label}) ON (s.level)")
-                session.run(f"CREATE TEXT INDEX {label.lower()}_text_index IF NOT EXISTS FOR (s:{label}) ON (s.text)")
-                session.run(f"CREATE TEXT INDEX {label.lower()}_title_index IF NOT EXISTS FOR (s:{label}) ON (s.title)")
+        create_basic_indexes(self.driver)
         print("✓ Indexes created")
     
     def get_graph_stats(self):
@@ -132,44 +121,6 @@ class GraphRAGIngestion:
             print(f"  • Word Count: {int(stats['avg_word_count'])} words")
             print(f"  • Keywords: {int(stats['avg_keywords'])} per node")
     
-    def clean_phrase(self, phrase: str) -> str:
-        tokens = [t for t in phrase.split() if t.lower() not in STOP_WORDS]
-        return " ".join(tokens)
-
-
-    def fix_hyphenated_linebreaks(self, text: str) -> str:
-        # Removes hyphen + newline (or hyphen + space + newline), joins word
-        text = re.sub(r'-\s*\n\s*', '', text)
-        # Optional: Replace newlines with space
-        text = re.sub(r'\n+', ' ', text)
-        return text
-
-    def extract_keywords(self, text: str) -> List[str]:
-        text = self.fix_hyphenated_linebreaks(text)
-        doc = self.nlp(text)
-        phrases = set()
-
-        # 1. Cleaned noun chunks
-        for chunk in doc.noun_chunks:
-            phrase = self.clean_phrase(chunk.text.strip()).lower()
-            if 1 <= len(phrase.split()) <= 5:
-                phrases.add(phrase)
-
-        # 2. Cleaned verb + object phrases
-        for token in doc:
-            if token.pos_ == "VERB":
-                for child in token.children:
-                    if child.dep_ in {"dobj", "attr", "pobj"}:
-                        phrase = self.clean_phrase(f"{token.text} {child.text}")
-                        if 1 <= len(phrase.split()) <= 5:
-                            phrases.add(phrase)
-
-        x = list(set(sorted(p for p in phrases if p and not all(w.lower() in STOP_WORDS for w in p.split()))))
-
-        # lower case the keywords
-        x = [keyword.lower() for keyword in x]
-        return x
-    
     def create_section_nodes(self, sections: List[Dict]):
         """Create Section nodes in Neo4j with keywords and embeddings."""
         print("🏗️  Creating section nodes...")
@@ -187,11 +138,11 @@ class GraphRAGIngestion:
                 else:
                     label = "SubSubSection"
                 
-                # Extract keywords
-                keywords = self.extract_keywords(section.get('title', '') + " " + section.get('text', ''))
+                # Extract keywords (shared helper)
+                keywords = extract_keywords(section.get('title', '') + " " + section.get('text', ''))
                 
                 # Generate embedding
-                embedding = self.embedding_model.encode(section.get('text', '')).tolist()
+                embedding = self.embedding_model.encode(section.get('title', '') + " " + section.get('text', ''), show_progress_bar=False).tolist()
                 
                 session.run(f"""
                     CREATE (s:{label} {{
