@@ -153,7 +153,7 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 
 4. **Launch the Web Interface**:
 ```bash
-streamlit run ui/visualize.py
+streamlit run src/ui/visualize.py
 ```
 - **Access**: Open `http://localhost:8501` in your browser
 - **Features**: Two main tabs - Ingestion and Query
