@@ -933,3 +933,13 @@
 2025-06-20 02:45:20 - INFO - Use pytorch device: cpu
 2025-06-20 02:52:13 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
 2025-06-20 02:52:13 - INFO - Use pytorch device: cpu
+2025-06-20 03:17:37 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-20 03:17:37 - INFO - Use pytorch device: cpu
+2025-06-20 03:18:43 - INFO - --------------------------------
+2025-06-20 03:18:43 - INFO - User Query : What languages are supported in the system?
+2025-06-20 03:18:43 - INFO - main_min_keyword_matches : 1 main_similarity_threshold : 0.7 connected_min_keyword_matches : 2 connected_similarity_threshold : 0.7 filter_type : Keyword Matches max_results : 5 excluded_keywords : []
+2025-06-20 03:18:43 - INFO - --------------------------------
+2025-06-20 03:18:44 - INFO - candidate_results : 10.1 --> 1 --> 0.6767371781751661 --> ['languages']
+2025-06-20 03:18:44 - INFO - candidate_results : 10.1.1 --> 1 --> 0.57109496000265 --> ['languages']
+2025-06-20 03:18:44 - INFO - query_keywords : ['languages', 'system']
+2025-06-20 03:18:50 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

@@ -496,7 +496,7 @@ def show_query_tab():
             
             # New slider – initial retrieval size
             initial_retrieval_num = st.slider(
-                "Initial retrieval number of results",
+                "Initial number of results retrieved",
                 min_value=1,
                 max_value=20,
                 value=1,
@@ -510,9 +510,9 @@ def show_query_tab():
             )
 
             # Main node thresholds
-            st.markdown("**Initial Candidate Section Thresholds:**")
+            st.markdown("**Initial Thresholds For Candidate Section:**")
             main_min_keyword_matches = st.slider(
-                "Initial Candidiate Node - Minimum Keyword Matches",
+                "Minimum Keyword Matches",
                 min_value=1,
                 max_value=10,
                 value=2,
@@ -520,7 +520,7 @@ def show_query_tab():
             )
             
             main_similarity_threshold = st.slider(
-                "Initial Candidiate Node - Similarity Threshold",
+                "MinimumSimilarity Threshold",
                 min_value=0.00,
                 max_value=1.0,
                 value=0.7,
