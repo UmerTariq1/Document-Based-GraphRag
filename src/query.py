@@ -75,6 +75,10 @@ class GraphRAGQuery:
             # Calculate similarities in Python
             nodes = []
             for record in result:
+                # Skip nodes with empty or whitespace-only text
+                if not record['text'] or not record['text'].strip():
+                    continue
+                    
                 node_embedding = np.array(record['embedding'])
                 similarity = cosine_similarity([query_embedding], [node_embedding])[0][0]
                 # check the number of keywords in the query matching the number of keywords in the node
@@ -111,7 +115,13 @@ class GraphRAGQuery:
                 LIMIT $limit
             """, keywords=keywords, limit=limit)
             
-            return [dict(record) for record in result]
+            # Filter out nodes with empty or whitespace-only text
+            nodes = []
+            for record in result:
+                if record['text'] and record['text'].strip():
+                    nodes.append(dict(record))
+            
+            return nodes
     
     def keyword_match_search(self, query: str, limit: int = 30, excluded_keywords: List[str] = None) -> List[Dict]:
         """Search nodes based on the number of keyword overlaps with the query (ties broken by cosine similarity)."""
@@ -130,6 +140,10 @@ class GraphRAGQuery:
 
             nodes = []
             for record in result:
+                # Skip nodes with empty or whitespace-only text
+                if not record['text'] or not record['text'].strip():
+                    continue
+                    
                 node_keywords = record["keywords"] or []
 
                 # Calculate keyword matches between query and node
