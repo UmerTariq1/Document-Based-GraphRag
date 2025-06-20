@@ -10,9 +10,22 @@ This project implements a complete pipeline for document understanding and intel
 
 The system extracts structured content from PDF documents, builds a semantic knowledge graph with multiple relationship types, and enables natural language querying with AI-powered responses.
 
-📦 Project structure
+## 📦 Project structure
 
-<pre> 📦 Project structure ```text . ├── data/ # Example PDFs, images, JSON output ├── logs/ # Runtime logs ├── src/ # All application code │ ├── ingest.py # CLI ingestion entry-point │ ├── query.py # Query/LLM orchestration entry-point │ ├── parse_pdf.py # Stand-alone PDF-to-JSON script │ ├── ui/ # Streamlit UI │ ├── utils/ # Shared helpers (ML models, OpenAI, Neo4j, text) │ ├── pdf_reader/ # PDF parsing library │ └── graph_rag/ # Experimental graph utilities └── requirements.txt # Python dependencies ``` </pre>
+```text
+.
+├── data/                 # Example PDFs, images, JSON output
+├── logs/                 # Runtime logs
+├── src/                  # All application code
+│   ├── ingest.py         # CLI ingestion entry-point
+│   ├── query.py          # Query/LLM orchestration entry-point
+│   ├── parse_pdf.py      # Stand-alone PDF-to-JSON script
+│   ├── ui/               # Streamlit UI
+│   ├── utils/            # Shared helpers (ML models, OpenAI, Neo4j, text)
+│   ├── pdf_reader/       # PDF parsing library
+│   └── graph_rag/        # Experimental graph utilities
+└── requirements.txt      # Python dependencies
+```
 
 
 ## 🖼️ Interface Preview
