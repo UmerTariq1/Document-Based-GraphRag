@@ -76,6 +76,26 @@ The system extracts structured content from PDF documents, builds a semantic kno
 - **`KEYWORD_MENTIONS`**: Connections based on shared keywords
 - **`SEMANTIC_SIMILAR_TO`**: Relationships based on embedding similarity
 
+## 🔄 Application Flow
+
+### Query Process Flow
+
+The query interface implements a sophisticated two-stage retrieval process for optimal results:
+
+1. **Initial Candidate Retrieval**: When you submit a query, the system first retrieves multiple candidate sections (configurable from 1-20) that match your query based on either keyword matches or semantic similarity scores.
+
+2. **Interactive Candidate Selection**: If multiple candidates are found, you'll see an expandable list showing each candidate section with:
+   - Section title and ID
+   - Page number
+   - Keyword match count and similarity score
+   - Preview of the section content (first 600 characters)
+
+3. **Main Answer Generation**: After selecting your preferred candidate, the system:
+   - Uses the chosen section as the primary answer
+   - Finds related content through graph relationships (parent sections, subsections, keyword mentions, semantic similarities)
+   - Here you still have the option to explore other candidiate sections.
+   
+This approach ensures you have control over which section serves as the main answer while still benefiting from the rich contextual information provided by the knowledge graph connections.
 
 ### 3. Web Interface (Streamlit application)
 Interactive Streamlit application providing:
