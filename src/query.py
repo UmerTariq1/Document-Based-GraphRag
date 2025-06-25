@@ -3,6 +3,10 @@
 GraphRAG Query Pipeline - Query the Neo4j graph using semantic search and relationship traversal
 """
 
+# Suppress warnings from thinc/spaCy about deprecated torch.cuda.amp.autocast
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*torch*")
+
 from neo4j import GraphDatabase
 from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
@@ -56,12 +60,14 @@ class GraphRAGQuery:
         self._initialize_models()
         return self.embedding_model.encode(query, show_progress_bar=False)
     
-    def semantic_search(self, query: str, limit: int = 5) -> List[Dict]:
+    def semantic_search(self, query: str, limit: int = 5, excluded_keywords: List[str] = None) -> List[Dict]:
         """Perform semantic search using query embedding."""
 
         self._initialize_models()
 
         query_embedding = self.get_query_embedding(query)
+        query_keywords = extract_keywords(query)
+
         
         with self.driver.session() as session:
             # Get all nodes with embeddings
@@ -81,10 +87,12 @@ class GraphRAGQuery:
                     
                 node_embedding = np.array(record['embedding'])
                 similarity = cosine_similarity([query_embedding], [node_embedding])[0][0]
-                # check the number of keywords in the query matching the number of keywords in the node
-                # query_keywords = self.extract_keywords(query)
-                # node_keywords = self.extract_keywords(record['text'])
-                # keyword_match_count = len(set(query_keywords) & set(node_keywords))
+                node_keywords = record["keywords"] or []
+                matching_keywords, keyword_count = calculate_keyword_matches(
+                    node_keywords,
+                    query_keywords,
+                    excluded_keywords
+                )
 
                 nodes.append({
                     'id': record['id'],
@@ -94,13 +102,14 @@ class GraphRAGQuery:
                     'cosine_similarity': similarity,
                     'page_number': record['page_number'],
                     'level': record['level'],
-                    'keywords': record['keywords']
-                    # 'keyword_match_count': keyword_match_count
+                    'keywords': record['keywords'],
+                    "matching_keywords": matching_keywords,
+                    "keyword_match_count": keyword_count
                 })
             
             # Sort by similarity and return top results
             nodes.sort(key=lambda x: x['similarity'], reverse=True)
-            return nodes[:limit]
+            return nodes[:limit], query_keywords
     
     def keyword_search(self, query: str, limit: int = 5) -> List[Dict]:
         """Search using extracted keywords."""
@@ -333,7 +342,7 @@ class GraphRAGQuery:
         if filter_type == "Keyword Matches":
             candidate_results, query_keywords = self.keyword_match_search(query, limit=candidate_limit, excluded_keywords=excluded_keywords)
         else:  # "Similarity Score" or any other value defaults to similarity search
-            candidate_results = self.semantic_search(query, limit=candidate_limit)
+            candidate_results, query_keywords = self.semantic_search(query, limit=candidate_limit)
 
         if not candidate_results:
             return {"status": "error", "answer": "No content found for the given query. Try lowering the threshold values.", "context": []}
@@ -352,9 +361,11 @@ class GraphRAGQuery:
         # Verify main node against appropriate threshold
         if filter_type == "Keyword Matches":
             if main_node.get("keyword_match_count", 0) < main_min_keyword_matches:
+                logging.info("No content found matching the main node keyword threshold. Try lowering the threshold values.")
                 return {"status": "error", "answer": "No content found matching the main node keyword threshold. Try lowering the threshold values.", "context": []}
         else:  # Similarity threshold check
             if main_node["similarity"] < main_similarity_threshold:
+                logging.info("No content found matching the main node similarity threshold. Try lowering the threshold values.")
                 return {"status": "error", "answer": "No content found matching the main node similarity threshold. Try lowering the threshold values.", "context": []}
 
         # get the query keywords
@@ -374,6 +385,7 @@ class GraphRAGQuery:
         # print("matching_keywords : " , matching_keywords)
         # print("keyword_count : " , keyword_count)
         main_node['matching_keywords'] = matching_keywords
+
         main_node['keyword_match_count'] = keyword_count
         
         # Initialize categorized context dictionary
@@ -394,7 +406,6 @@ class GraphRAGQuery:
             if item['id'] not in seen_ids:
                 seen_ids.add(item['id'])
                 categorized_context['parent'].append(item)
-        
         # print("parent_content : " , parent_content)
         # 2. Get subsection content (apply thresholds)
         subsection_content = self.get_related_content(main_node['id'], 'HAS_SUBSECTION', depth=1)
@@ -420,6 +431,7 @@ class GraphRAGQuery:
         
         # print("subsection_content : " , subsection_content)
         # 3. Get next content (apply thresholds)
+
         next_content = self.get_related_content(main_node['id'], 'NEXT', depth=1)
         for item in next_content:
             if item['id'] not in seen_ids:
@@ -440,6 +452,7 @@ class GraphRAGQuery:
                 if should_include:
                     seen_ids.add(item['id'])
                     categorized_context['next'].append(item)
+
         # print("next_content : " , next_content)
         # 4. Get keyword mention content (apply keyword threshold)
         mention_content = self.get_related_content(main_node['id'], 'KEYWORD_MENTIONS', depth=1)
@@ -488,7 +501,7 @@ class GraphRAGQuery:
                             matching_keywords = rel['properties']['matching_keywords']
                 item['keyword_match_count'] = max_keyword_matches
                 item['matching_keywords'] = matching_keywords
-        
+
         # Sort within each category based on filter_type
         for category in categorized_context.values():
             if filter_type == "Similarity Score":
@@ -532,7 +545,7 @@ class GraphRAGQuery:
         print("Primary Node : " + main_node.get('id', 'N/A'))
 
         print("--------------------------------")
-
+    
         return {
             "status": "success",
             "id": main_node['id'],
@@ -557,7 +570,7 @@ class GraphRAGQuery:
         if filter_type == "Keyword Matches":
             candidates, _ = self.keyword_match_search(query, limit=limit, excluded_keywords=excluded_keywords)
         else:
-            candidates = self.semantic_search(query, limit=limit)
+            candidates, _ = self.semantic_search(query, limit=limit)
         return candidates
 
 if __name__ == "__main__":

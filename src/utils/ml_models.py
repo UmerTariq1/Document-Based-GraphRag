@@ -1,5 +1,9 @@
 from functools import lru_cache
 
+# Suppress warnings from thinc/spaCy about deprecated torch.cuda.amp.autocast
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*torch*")
+
 # Lazy, cached loading of heavy ML models used across the application
 # ---------------------------------------------------------------
 # We centralise this here so that ingest.py, query.py and any other

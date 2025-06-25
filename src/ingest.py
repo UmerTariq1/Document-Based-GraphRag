@@ -34,6 +34,10 @@ Only created when similarity exceeds threshold (default 0.85)
 
 """
 
+# Suppress warnings from thinc/spaCy about deprecated torch.cuda.amp.autocast
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*torch*")
+
 import json
 from neo4j import GraphDatabase
 from typing import List, Dict
@@ -49,8 +53,13 @@ logger = get_logger()
 class GraphRAGIngestion:
     def __init__(self, uri: str = "bolt://localhost:7687", username: str = "neo4j", password: str = "password"):
         """Initialize Neo4j connection and ML models."""
-        self.driver = GraphDatabase.driver(uri, auth=(username, password))
-        print("✓ Connected to Neo4j")
+
+        try:
+            self.driver = GraphDatabase.driver(uri, auth=(username, password))
+            print("✓ Connected to Neo4j")
+        except Exception as e:
+            logger.error(f"❌ Error connecting to Neo4j: {e}")
+            raise e
         
         # Initialise ML models using the shared cached loaders
         print("🤖 Loading ML models...")

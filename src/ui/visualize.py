@@ -1,5 +1,8 @@
 # streamlit run ui/visualize.py
 
+# Suppress warnings from thinc/spaCy about deprecated torch.cuda.amp.autocast
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*torch*")
 
 import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
